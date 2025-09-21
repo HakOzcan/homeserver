@@ -1,7 +1,7 @@
 services:
   backend:
     build: ./backend
-    container_name: homecloud-backend
+    container_name: homeserver-backend
     volumes:
       - /mnt/cloud:/mnt/cloud
       - /mnt/streaming:/mnt/streaming
@@ -14,11 +14,11 @@ services:
 
   db:
     image: postgres:15
-    container_name: homecloud-db
+    container_name: homeserver-db
     environment:
       POSTGRES_USER: hakan
       POSTGRES_PASSWORD: strongpassword
-      POSTGRES_DB: homecloud
+      POSTGRES_DB: homeserver
     volumes:
       - ./db:/var/lib/postgresql/data
     restart: unless-stopped
