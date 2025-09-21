@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: ./backend
+    container_name: homecloud-backend
+    volumes:
+      - /mnt/cloud:/mnt/cloud
+      - /mnt/streaming:/mnt/streaming
+      - /mnt/cache:/mnt/cache
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: homecloud-db
+    environment:
+      POSTGRES_USER: hakan
+      POSTGRES_PASSWORD: strongpassword
+      POSTGRES_DB: homecloud
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    restart: unless-stopped
