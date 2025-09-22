@@ -26,9 +26,9 @@ services:
     image: nginx:1.25-alpine
     restart: unless-stopped
     ports:
-      -"80:80"
+      - "80:80"
     volumes:
-      -./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on:
       - backend
 
