@@ -6,19 +6,31 @@ services:
       - /mnt/cloud:/mnt/cloud
       - /mnt/streaming:/mnt/streaming
       - /mnt/cache:/mnt/cache
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       - db
     restart: unless-stopped
 
   db:
-    image: postgres:15
-    container_name: homeserver-db
+    image: postgres:16
     environment:
       POSTGRES_USER: hakan
       POSTGRES_PASSWORD: strongpassword
       POSTGRES_DB: homeserver
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      -"80:80"
+    volumes:
+      -./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
