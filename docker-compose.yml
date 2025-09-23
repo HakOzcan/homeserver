@@ -44,6 +44,8 @@ services:
   letsencrypt:
     image: nginxproxy/acme-companion
     container_name: homeserver-acme
+    environment:
+      - NGINX_PROXY_CONTAINER=homeserver-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - certs:/etc/nginx/certs
