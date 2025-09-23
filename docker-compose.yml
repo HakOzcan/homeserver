@@ -8,6 +8,10 @@ services:
       - /mnt/cache:/mnt/cache
     expose:
       - "8000"
+    environment:
+      - VIRTUAL_HOST=hakserver.cc
+      - LETSENCRYPT_HOST=hakserver.cc
+      - LETSENCRYPT_EMAIL=hakan.ozcan6217@gmail.com
     depends_on:
       - db
     restart: unless-stopped
@@ -22,15 +26,36 @@ services:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  nginx:
-    image: nginx:1.25-alpine
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: homeserver-proxy
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - /var/run/docker.sock:/temp/docker.sock.ro
+      - certs:/etc/nginx/certs:ro
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
     depends_on:
       - backend
+  
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    container_name: homeserver-acme
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/shar/nginx/html
+    depends_on:
+      - nginx-proxy
+    restart:
+      unless-stopped
 
 volumes:
   db_data:
+  certs:
+  vhost:
+  html:
