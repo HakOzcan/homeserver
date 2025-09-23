@@ -34,7 +34,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/temp/docker.sock.ro
+      - /var/run/docker.sock:/temp/docker.sock:ro
       - certs:/etc/nginx/certs:ro
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
@@ -48,7 +48,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
-      - html:/usr/shar/nginx/html
+      - html:/usr/share/nginx/html
     depends_on:
       - nginx-proxy
     restart:
