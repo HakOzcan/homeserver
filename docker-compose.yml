@@ -9,8 +9,8 @@ services:
     expose:
       - "8000"
     environment:
-      - VIRTUAL_HOST=hakserver.cc
-      - LETSENCRYPT_HOST=hakserver.cc
+      - VIRTUAL_HOST=hakserver.cc,www.hakserver.cc
+      - LETSENCRYPT_HOST=hakserver.cc,www.hakserver.cc
       - LETSENCRYPT_EMAIL=hakan.ozcan6217@gmail.com
     depends_on:
       - db
