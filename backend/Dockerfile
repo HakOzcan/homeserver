@@ -8,10 +8,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 RUN groupadd -g 1000 app && useradd -m -u 1000 -g 1000 app
 
 WORKDIR /app
-COPY backend/requirements.txt /app/
+
+# Copy requirements first (so Docker caches installs)
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend /app
+# Copy the rest of the backeend code
+COPY . /app
 
 # Drop privileges
 USER app
