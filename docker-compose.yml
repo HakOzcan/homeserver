@@ -65,7 +65,6 @@ services:
     container_name: homeserver-acme
     environment:
       - NGINX_PROXY_CONTAINER=homeserver-proxy
-      - ACME_CA_URI=https://acme-staging-02.api.letsencrypt.org/directory
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - certs:/etc/nginx/certs
