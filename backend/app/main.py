@@ -4,4 +4,4 @@ app = FastAPI(title="HomeServer API")
 
 @app.get("/")
 def root():
-    return {"message": "HomeServer backend is running"}
+    return {"Ya Hak": "Mulk Allahindir... Ama burada da bir seyler olabilir."}
