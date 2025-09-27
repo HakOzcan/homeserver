@@ -24,7 +24,7 @@ class LoginRequest(BaseModel):
 @router.post("/login")
 def login(request: LoginRequest):
     user = fake_user_db.get(request.username) # Check if request's username is in our fake database and get and assign it to a variable if so
-    if not user or not pwd_context.verify(request.password, user["hashed_password"]): # Check user and the request's password, if they are not correct, raise an exception
+    if not user or not pwd_context.verify(request.password, user["hashed_password"]): # Validate user and the request's password, if they are not correct, raise an exception
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             details="Invalid credentials",
