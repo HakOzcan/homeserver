@@ -9,7 +9,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 fake_user_db = {
     "hakan": {
         "username": "hakan",
-        "hashed_password": "$2b$12$F6nhUfA6OLNk7zT1ZxXAAe3tGnC49bCmWnVUXu.lHKU7QG7aG3EPC" # bcrypt for "password123"
+        "hashed_password": "$2b$12$RVJdtnvtMAoTG.bhQuR4zeLfJ9msw6zfKQbVSTwTAe1D.v4ppd2vu" # bcrypt for "password123"
     }
 }
 
