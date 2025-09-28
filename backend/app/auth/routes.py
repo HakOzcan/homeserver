@@ -27,7 +27,7 @@ def login(request: LoginRequest):
     if not user or not pwd_context.verify(request.password, user["hashed_password"]): # Validate user and the request's password, if they are not correct, raise an exception
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            details="Invalid credentials",
+            detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
