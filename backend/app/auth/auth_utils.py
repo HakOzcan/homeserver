@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Config
-SECRET_KEY = os.getenv("SECRETKEY") # Needs to be moved to env var
+SECRET_KEY = os.getenv("SECRET_KEY") # Needs to be moved to env var
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
