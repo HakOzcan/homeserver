@@ -5,3 +5,4 @@ psycopg2-binary
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt==3.2.2
+pyhton-dotenv

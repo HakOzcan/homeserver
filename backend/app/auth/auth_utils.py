@@ -1,10 +1,15 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+import os
+from dotenv import load_dotenv
+
+# Load env variables
+load_dotenv()
 
 # Config
-SECRET_KEY = "supersecretkey" # Needs to be moved to env var
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+SECRET_KEY = os.getenv("SECRETKEY") # Needs to be moved to env var
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     # Get data copied to a placeholder
