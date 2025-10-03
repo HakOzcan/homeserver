@@ -12,15 +12,24 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/register", response_model=schemas.UserResponse)
-def register(request: schemas.UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.username == request.username).first()
-    if existing_user:
+def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try getting usercreate schema and current session
+    existing_user = db.query(User).filter(User.username == request.username).first() # Check if there is any user with the requested username
+    if existing_user: # If so, raise an exception 
         raise HTTPException(status_code=400, detail="Username already exists")
 
+    # Hash requested password
     hashed_pw = pwd_context.hash(request.password)
+
+    # Create the new user using requested username and hashed password
     new_user = User(username=request.username, hashed_password=hashed_pw)
+
+    # Add it to database
     db.add(new_user)
+
+    # Commit the changes
     db.commit()
+
+    # Refresh the database with new user
     db.refresh(new_user)
     return new_user
 
