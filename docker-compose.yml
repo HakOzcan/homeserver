@@ -11,12 +11,14 @@ services:
     expose:
       - "8000"
     environment:
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - VIRTUAL_HOST=${BACKEND_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${BACKEND_LETSENCRYPT_HOST}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - VIRTUAL_PORT=8000
     depends_on:
       - db
     restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     logging:
       driver: "json-file"
       options: { max-size: "10m", max-file: "3" }
@@ -26,6 +28,16 @@ services:
       timeout: 10s
       retries: 3
 
+  frontend:
+    build: ./frontend
+    container_name: homeserver-frontend
+    expose:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - VIRTUAL_PORT=80
+  
   db:
     image: postgres:16
     environment:
