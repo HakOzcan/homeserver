@@ -1,30 +1,33 @@
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status, Depends
 from passlib.context import CryptContext
-from .auth_utils import create_access_token
+from sqlalchemy.orm import Session
+from app.core.security import create_access_token
+from app.db.database import get_db
+from app.db.models import User
+from app.db import schemas
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-# Store a fake user info for now
-fake_user_db = {
-    "hakan": {
-        "username": "hakan",
-        "hashed_password": "$2b$12$RVJdtnvtMAoTG.bhQuR4zeLfJ9msw6zfKQbVSTwTAe1D.v4ppd2vu" # bcrypt for "password123"
-    }
-}
 
 # Hold password context for bcrpyt scheme
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Class for login request
-class LoginRequest(BaseModel):
-    username: str
-    password: str
+@router.post("/register", response_model=schemas.UserResponse)
+def register(request: schemas.UserCreate, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.username == request.username).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already exists")
+
+    hashed_pw = pwd_context.hash(request.password)
+    new_user = User(username=request.username, hashed_password=hashed_pw)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
 
 @router.post("/login")
-def login(request: LoginRequest):
-    user = fake_user_db.get(request.username) # Check if request's username is in our fake database and get and assign it to a variable if so
-    if not user or not pwd_context.verify(request.password, user["hashed_password"]): # Validate user and the request's password, if they are not correct, raise an exception
+def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == request.username).first() # Check if request's username is in our fake database and get and assign it to a variable if so
+    if not user or not pwd_context.verify(request.password, user.hashed_password): # Validate user and the request's password, if they are not correct, raise an exception
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
@@ -32,5 +35,5 @@ def login(request: LoginRequest):
         )
     
     # Create an access token and return it as the credentials are valid
-    access_token = create_access_token({"sub": request.username})
+    access_token = create_access_token({"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}

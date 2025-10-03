@@ -1,8 +1,15 @@
 from fastapi import FastAPI, Depends
-from .auth.routes import router as auth_router
-from .auth.dependencies import get_current_user
+from app.core.config import settings
+from app.auth.routes import router as auth_router
+from app.db.database import engine
+from app.db.models import Base
+from app.auth.dependencies import get_current_user
 
-app = FastAPI(title="HomeServer API", root_path="/api")
+# Initialize DB
+Base.metadata.create_all(bind=engine)
+
+# Create FastAPI app
+app = FastAPI(title=settings.PROJECT_NAME, root_path=settings.ROOT_PATH)
 
 app.include_router(auth_router)
 
