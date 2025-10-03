@@ -8,8 +8,10 @@ class Settings:
     ROOT_PATH = "/api"
 
     # Database
-    DATABASE_URL = os.getenv("DATABASE_URL")
-
+    DATABASE_URL = (
+    f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
+    f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
+)
     # Auth
     SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
