@@ -11,7 +11,9 @@ function App() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [view, setView] = useState("login"); // "login" | "register" | "dashboard"
+  const [view, setView] = useState("login"); // "login" | "register" | "dashboard" | "library" | "player"
+  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
   // --- Register ---
   const handleRegister = async (e) => {
@@ -77,10 +79,35 @@ function App() {
     setView("login");
   };
 
+  // --- Library / Streaming ---
+  const fetchVideos = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.get("/media/list", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVideos(res.data.videos);
+      setView("library");
+    } catch (err) {
+      setMessage("Failed to load videos: " + (err.response?.data?.detail || "Unknown error"));
+    }
+  }
+
+  const openVideo = (video) => {
+    setSelectedVideo(video);
+    setView("player")
+  }
+
+  const backToLibrary = () => {
+    setSelectedVideo(null);
+    setView("library");
+  }
+
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "400px", margin: "0 auto" }}>
+    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "900px", margin: "0 auto" }}>
       <h1>HomeServer</h1>
 
+      {/* REGISTER */}
       {view === "register" && (
         <form onSubmit={handleRegister}>
           <h2>Register</h2>
@@ -107,6 +134,7 @@ function App() {
         </form>
       )}
 
+      {/* LOGIN */}
       {view === "login" && (
         <form onSubmit={handleLogin}>
           <h2>Login</h2>
@@ -133,6 +161,8 @@ function App() {
         </form>
       )}
 
+
+      {/* DASHBOARD */}
       {view === "dashboard" && (
         <div>
           <h2>Dashboard</h2>
@@ -142,6 +172,34 @@ function App() {
           <button onClick={handleAccountDeletion}>Delete My Account</button>
         </div>
       )}
+
+      {/* LIBRARY */}
+      {view === "library" && (
+        <div>
+          <h2>Video Library</h2>
+          <ul style={{ listStyle: "none", padding: 0}}>
+            {videos.map((v,i) => (
+              <li
+                key={i}
+                style={{
+                  marginBottom: "0.5rem",
+                  cursor: "pointer",
+                  backgroundColor: "#eee",
+                  padding: "0.5rem",
+                  borderRadius: "8px",
+                }}
+                onClick={() => openVideo(v)}
+              >
+                {v}
+              </li>
+            ))}
+          </ul>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      )}
+
+      {/* VIDEO PLAYER */}
+      {view === "player" && <VideoPlayer video={selectedVideo} onBack={backToLibrary} />}
 
       <p style={{ color: "darkred" }}>{message}</p>
     </div>
