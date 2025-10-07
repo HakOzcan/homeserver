@@ -5,6 +5,7 @@ from app.auth.routes import router as auth_router
 from app.db.database import engine
 from app.db.models import Base
 from app.auth.dependencies import get_current_user
+from app.media.routes import router as media_router
 
 # Initialize DB
 Base.metadata.create_all(bind=engine)
@@ -27,6 +28,7 @@ app.add_middleware(
 
 
 app.include_router(auth_router)
+app.include_router(media_router)
 
 @app.get("/")
 def root():
