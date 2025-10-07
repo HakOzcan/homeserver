@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import VideoPlayer from "./components/VideoPlayer";
 
 // Axios instance for API
 const api = axios.create({
