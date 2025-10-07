@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from app.auth.dependencies import get_current_user
 
-router = APIRouter(prefix="/api/media", tags=["Media"])
+router = APIRouter(prefix="/media", tags=["Media"])
 
 # Your mounted media path from docker-compose
 MEDIA_ROOT = "/mnt/streaming"
