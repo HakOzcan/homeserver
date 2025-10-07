@@ -53,6 +53,20 @@ function App() {
     }
   };
 
+  // --- Account Deletion --- 
+  const handleAccountDeletion = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.post("/auth/delete", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessage(res.data.message);
+      handleLogout();
+    } catch (err) {
+      setMessage("Failed to delete user: " + (err.response?.data?.detail || "Unknown error"))
+    }
+  };
+
   // --- Logout ---
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -125,6 +139,7 @@ function App() {
           <p>Welcome, {username}!</p>
           <button onClick={testProtected}>Test Protected Route</button>
           <button onClick={handleLogout}>Logout</button>
+          <button onClick={handleAccountDeletion}>Delete My Account</button>
         </div>
       )}
 
