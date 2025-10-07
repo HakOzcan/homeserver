@@ -5,23 +5,21 @@ const VideoPlayer = ({ video, onBack }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const fetchVideo = async () => {
+    const getSignedURL = async () => {
         try {
             const token = localStorage.getItem("token");
             const res = await axios.get(
-                `https://api.hakserver.cc/api/media/stream/${video}`,
+                `https://api.hakserver.cc/api/media/play/${video}`,
                 {
                     headers: { Authorization: `Bearer ${token} `},
-                    responseType: "blob",
                 }
             );
-            const videoURL = URL.createObjectURL(res.data);
-            videoRef.current.src = videoURL;
+            videoRef.current.src = res.data.url;
         } catch (err) {
             console.error("Error loading video: ", err);
         }
     };
-    fetchVideo();
+    getSignedURL();
   }, [video]);
 
   return (
