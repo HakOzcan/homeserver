@@ -57,7 +57,7 @@ function App() {
   const handleAccountDeletion = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.post("/auth/delete", {
+      const res = await api.delete("/auth/delete", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessage(res.data.message);

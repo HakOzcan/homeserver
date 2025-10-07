@@ -48,8 +48,8 @@ def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token({"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/delete")
-def delete(db: Session = Depends(get_db), user = Depends(get_current_user)):
+@router.delete("/delete")
+def delete(user = Depends(get_current_user), db: Session = Depends(get_db)):
     # Delete the currently logged-in user
     username = user["sub"]
     db_user = db.query(User).filter(User.username == username).first()
