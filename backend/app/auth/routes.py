@@ -5,6 +5,7 @@ from app.core.security import create_access_token
 from app.db.database import get_db
 from app.db.models import User
 from app.db import schemas
+from app.auth.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -46,3 +47,15 @@ def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
     # Create an access token and return it as the credentials are valid
     access_token = create_access_token({"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/delete")
+def delete(db: Session = Depends(get_db), user = Depends(get_current_user)):
+    # Delete the currently logged-in user
+    username = user["sub"]
+    db_user = db.query(User).filter(User.username == username).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    db.delete(db_user)
+    db.commit()
+    return {"message": f"User '{username}' has been deleted."}
