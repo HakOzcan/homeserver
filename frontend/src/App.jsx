@@ -167,9 +167,14 @@ function App() {
         <div>
           <h2>Dashboard</h2>
           <p>Welcome, {username}!</p>
-          <button onClick={testProtected}>Test Protected Route</button>
+          <button onClick={fetchVideos}>Open Library</button>
           <button onClick={handleLogout}>Logout</button>
-          <button onClick={handleAccountDeletion}>Delete My Account</button>
+          <button
+            onClick={handleAccountDeletion}
+            style={{ backgroundColor: "crimson", color: "white", marginLeft: "0.5rem" }}
+          >
+            Delete My Account
+          </button>
         </div>
       )}
 
