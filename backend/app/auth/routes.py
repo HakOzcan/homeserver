@@ -6,6 +6,7 @@ from app.db.database import get_db
 from app.db.models import User
 from app.db import schemas
 from app.auth.dependencies import get_current_user
+from app.auth.validators import validate_password_strength
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -17,6 +18,9 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
     existing_user = db.query(User).filter(User.username == request.username).first() # Check if there is any user with the requested username
     if existing_user: # If so, raise an exception 
         raise HTTPException(status_code=400, detail="Username already exists")
+
+    # Validate password if it fits with complexity rules
+    validate_password_strength(request.password)
 
     # Hash requested password
     hashed_pw = pwd_context.hash(request.password)
