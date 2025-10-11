@@ -38,6 +38,11 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
     db.refresh(new_user)
     return new_user
 
+@router.get("/password-policy")
+def get_password_policy():
+    from app.auth.validators import PASSWORD_POLICY
+    return PASSWORD_POLICY
+
 @router.post("/login")
 def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == request.username).first() # Check if request's username is in our fake database and get and assign it to a variable if so
