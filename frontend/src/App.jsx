@@ -107,132 +107,234 @@ function App() {
   }
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "900px", margin: "0 auto" }}>
-      <h1>HomeServer</h1>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        backgroundColor: "#f9fafc",
+        paddingTop: "3rem",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <h1 style={{ marginBottom: "2rem", color: "#222" }}>HomeServer</h1>
 
-      {/* REGISTER */}
-      {view === "register" && (
-        <form onSubmit={handleRegister}>
-          <h2>Register</h2>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setShowPasswordRules(true)}
-            onBlur={() => setShowPasswordRules(false)}
-            placeholder="Password"
-            required
-          />
-          {
-            showPasswordRules && (
-              <div
+      <div
+        style={{
+          backgroundColor: "#fff",
+          border: "1px solid #ddd",
+          borderRadius: "12px",
+          padding: "2rem 3rem",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+          width: "100%",
+          maxWidth: "420px",
+          position: "relative",
+        }}
+      >
+        {/* REGISTER */}
+        {view === "register" && (
+          <form onSubmit={handleRegister}>
+            <h2 style={{ textAlign: "center" }}>Register</h2>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Email"
+                type="email"
+                required
                 style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: "0",
-                  background: "#fff",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "0.75rem",
-                  fontsize: "0.85rem",
                   width: "100%",
-                  zIndex: 5,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              }}
-              >
-                <PasswordRequirements password={password} />
-              </div>
-            )
-          }
-          <button type="submit">Register</button>
-          <p>
-            Already have an account?{" "}
-            <button type="button" onClick={() => setView("login")}>
-              Login here
-            </button>
-          </p>
-        </form>
-      )}
-
-      {/* LOGIN */}
-      {view === "login" && (
-        <form onSubmit={handleLogin}>
-          <h2>Login</h2>
-          <input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-          />
-          <button type="submit">Login</button>
-          <p>
-            Don’t have an account?{" "}
-            <button type="button" onClick={() => setView("register")}>
-              Register here
-            </button>
-          </p>
-        </form>
-      )}
-
-
-      {/* DASHBOARD */}
-      {view === "dashboard" && (
-        <div>
-          <h2>Dashboard</h2>
-          <p>Welcome, {username}!</p>
-          <button onClick={fetchVideos}>Open Library</button>
-          <button onClick={handleLogout}>Logout</button>
-          <button
-            onClick={handleAccountDeletion}
-            style={{ backgroundColor: "crimson", color: "white", marginLeft: "0.5rem" }}
-          >
-            Delete My Account
-          </button>
-        </div>
-      )}
-
-      {/* LIBRARY */}
-      {view === "library" && (
-        <div>
-          <h2>Video Library</h2>
-          <ul style={{ listStyle: "none", padding: 0}}>
-            {videos.map((v,i) => (
-              <li
-                key={i}
-                style={{
-                  marginBottom: "0.5rem",
-                  cursor: "pointer",
-                  backgroundColor: "#eee",
-                  padding: "0.5rem",
-                  borderRadius: "8px",
+                  padding: "0.6rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
                 }}
-                onClick={() => openVideo(v)}
+              />
+            </div>
+            <div style={{ position: "relative", marginBottom: "1rem" }}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setShowPasswordRules(true)}
+                onBlur={() => setShowPasswordRules(false)}
+                placeholder="Password"
+                required
+                style={{
+                  width: "100%",
+                  padding: "0.6rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                }}
+              />
+              {showPasswordRules && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "calc(100% + 12px)",
+                    transform: "translateY(-50%)",
+                    background: "#fff",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    padding: "0.75rem",
+                    fontSize: "0.85rem",
+                    minWidth: "220px",
+                    zIndex: 10,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  }}
+                >
+                  <PasswordRequirements password={password} />
+                </div>
+              )}
+            </div>
+            <button
+              type="submit"
+              style={{
+                width: "100%",
+                padding: "0.6rem",
+                backgroundColor: "#3b82f6",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Register
+            </button>
+            <p style={{ marginTop: "1rem", textAlign: "center" }}>
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => setView("login")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#3b82f6",
+                  cursor: "pointer",
+                }}
               >
-                {v}
-              </li>
-            ))}
-          </ul>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )}
+                Login here
+              </button>
+            </p>
+          </form>
+        )}
 
-      {/* VIDEO PLAYER */}
-      {view === "player" && <VideoPlayer video={selectedVideo} onBack={backToLibrary} />}
+        {/* LOGIN */}
+        {view === "login" && (
+          <form onSubmit={handleLogin}>
+            <h2 style={{ textAlign: "center" }}>Login</h2>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Email"
+                type="email"
+                required
+                style={{
+                  width: "100%",
+                  padding: "0.6rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+                style={{
+                  width: "100%",
+                  padding: "0.6rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              style={{
+                width: "100%",
+                padding: "0.6rem",
+                backgroundColor: "#3b82f6",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Login
+            </button>
+            <p style={{ marginTop: "1rem", textAlign: "center" }}>
+              Don’t have an account?{" "}
+              <button
+                type="button"
+                onClick={() => setView("register")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#3b82f6",
+                  cursor: "pointer",
+                }}
+              >
+                Register here
+              </button>
+            </p>
+          </form>
+        )}
 
-      <p style={{ color: "darkred" }}>{message}</p>
+        {/* DASHBOARD */}
+        {view === "dashboard" && (
+          <div style={{ textAlign: "center" }}>
+            <h2>Dashboard</h2>
+            <p>Welcome, {username}!</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <button onClick={fetchVideos}>Open Library</button>
+              <button onClick={handleLogout}>Logout</button>
+              <button
+                onClick={handleAccountDeletion}
+                style={{ backgroundColor: "crimson", color: "white" }}
+              >
+                Delete My Account
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* LIBRARY */}
+        {view === "library" && (
+          <div>
+            <h2>Video Library</h2>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {videos.map((v, i) => (
+                <li
+                  key={i}
+                  style={{
+                    marginBottom: "0.5rem",
+                    cursor: "pointer",
+                    backgroundColor: "#eee",
+                    padding: "0.5rem",
+                    borderRadius: "8px",
+                  }}
+                  onClick={() => openVideo(v)}
+                >
+                  {v}
+                </li>
+              ))}
+            </ul>
+            <button onClick={handleLogout}>Logout</button>
+          </div>
+        )}
+
+        {/* VIDEO PLAYER */}
+        {view === "player" && <VideoPlayer video={selectedVideo} onBack={backToLibrary} />}
+      </div>
+
+      <p style={{ color: "darkred", marginTop: "1rem" }}>{message}</p>
     </div>
   );
 }
