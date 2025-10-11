@@ -1,10 +1,10 @@
 import re, json, os
 from fastapi import HTTPException, status
 
-password_policy_path = os.path.join(os.path.dirname(__file__), "../config/password_policy.json")
+password_policy_path = os.path.join(os.path.dirname(__file__), "config\\password_policy.json")
 
-with open(password_policy_path, "r") as f:
-    PASSWORD_POLICY = json.load(f)
+with open(password_policy_path, "r") as pp:
+    PASSWORD_POLICY = json.load(pp)
 
 def validate_password_strength(password: str):
     """
@@ -12,4 +12,4 @@ def validate_password_strength(password: str):
     """
     for rule in PASSWORD_POLICY["rules"]:
         if not re.search(rule["regex"], password):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Password must include: {rule['label']}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Password must include: {rule["label"]}")
