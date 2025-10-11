@@ -1,7 +1,7 @@
 import re, json, os
 from fastapi import HTTPException, status
 
-password_policy_path = os.path.join(os.path.dirname(__file__), "config\\password_policy.json")
+password_policy_path = os.path.join(os.path.dirname(__file__), "config/password_policy.json")
 
 with open(password_policy_path, "r") as pp:
     PASSWORD_POLICY = json.load(pp)
