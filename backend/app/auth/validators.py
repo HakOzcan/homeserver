@@ -12,4 +12,4 @@ def validate_password_strength(password: str):
     """
     for rule in PASSWORD_POLICY["rules"]:
         if not re.search(rule["regex"], password):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Password must include: {rule["label"]}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Password must include: {rule['label']}")
