@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import VideoPlayer from "./components/VideoPlayer";
+import PasswordRequirements from "./components/PasswordRequirements";
 
 // Axios instance for API
 const api = axios.create({
@@ -15,6 +16,7 @@ function App() {
   const [view, setView] = useState("login"); // "login" | "register" | "dashboard" | "library" | "player"
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showPasswordRules, setShowPasswordRules] = useState(false);
 
   // --- Register ---
   const handleRegister = async (e) => {
@@ -122,9 +124,32 @@ function App() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setShowPasswordRules(true)}
+            onBlur={() => setShowPasswordRules(false)}
             placeholder="Password"
             required
           />
+          {
+            showPasswordRules && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: "0",
+                  background: "#fff",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "0.75rem",
+                  fontsize: "0.85rem",
+                  width: "100%",
+                  zIndex: 5,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+              >
+                <PasswordRequirements password={password} />
+              </div>
+            )
+          }
           <button type="submit">Register</button>
           <p>
             Already have an account?{" "}
