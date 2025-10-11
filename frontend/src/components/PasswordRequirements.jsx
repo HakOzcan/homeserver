@@ -38,3 +38,5 @@ const PasswordRequirements = ({ password }) => {
         </ul>
     );
 };
+
+export default PasswordRequirements;
