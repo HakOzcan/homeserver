@@ -1,6 +1,8 @@
 import re
 from fastapi import HTTPException, status
 
+PASSWORD_RULES = "Password must be at least 8 characters long, include an uppercase and a lowercase letter, a number and a special character!"
+
 def validate_password_strength(password: str):
     """
     Enforce password policy:
@@ -8,12 +10,12 @@ def validate_password_strength(password: str):
     - At least one uppercase, one lowercase, one digit, one special character
     """
     if len(password) < 8:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters long.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=PASSWORD_RULES)
     if not re.search(r"[A-Z]", password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must include an uppercase letter.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=PASSWORD_RULES)
     if not re.search(r"[a-z]", password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must include a lowercase letter.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=PASSWORD_RULES)
     if not re.search(r"\d", password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must include a number.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=PASSWORD_RULES)
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must include a special character.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=PASSWORD_RULES)
