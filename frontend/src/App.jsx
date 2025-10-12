@@ -129,7 +129,7 @@ function App() {
           padding: "2rem 3rem",
           boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
           width: "100%",
-          maxWidth: "420px",
+          maxWidth: "400px",
           position: "relative",
         }}
       >
@@ -145,7 +145,7 @@ function App() {
                 type="email"
                 required
                 style={{
-                  width: "100%",
+                  width: "90%",
                   padding: "0.6rem",
                   border: "1px solid #ccc",
                   borderRadius: "6px",
@@ -162,7 +162,7 @@ function App() {
                 placeholder="Password"
                 required
                 style={{
-                  width: "100%",
+                  width: "90%",
                   padding: "0.6rem",
                   border: "1px solid #ccc",
                   borderRadius: "6px",
@@ -180,7 +180,7 @@ function App() {
                     borderRadius: "8px",
                     padding: "0.75rem",
                     fontSize: "0.85rem",
-                    minWidth: "220px",
+                    minWidth: "200px",
                     zIndex: 10,
                     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                   }}
@@ -192,13 +192,15 @@ function App() {
             <button
               type="submit"
               style={{
-                width: "100%",
+                width: "50%",
                 padding: "0.6rem",
                 backgroundColor: "#3b82f6",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
                 cursor: "pointer",
+                display: "block",
+                margin: "1rem auto 0 auto",
               }}
             >
               Register
@@ -229,11 +231,10 @@ function App() {
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Email"
-                type="email"
+                placeholder="Username"
                 required
                 style={{
-                  width: "100%",
+                  width: "90%",
                   padding: "0.6rem",
                   border: "1px solid #ccc",
                   borderRadius: "6px",
@@ -248,7 +249,7 @@ function App() {
                 placeholder="Password"
                 required
                 style={{
-                  width: "100%",
+                  width: "90%",
                   padding: "0.6rem",
                   border: "1px solid #ccc",
                   borderRadius: "6px",
@@ -258,13 +259,15 @@ function App() {
             <button
               type="submit"
               style={{
-                width: "100%",
+                width: "50%",
                 padding: "0.6rem",
                 backgroundColor: "#3b82f6",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
                 cursor: "pointer",
+                display: "block",
+                margin: "1rem auto 0 auto",
               }}
             >
               Login
