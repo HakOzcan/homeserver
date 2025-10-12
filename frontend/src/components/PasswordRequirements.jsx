@@ -30,7 +30,7 @@ const PasswordRequirements = ({ password }) => {
                             alignItems: "center",
                         }}
                     >
-                        <span style={{ marginRight: "6px"}}>{valid ? "✅" : "⬜"}</span>
+                        <span style={{ marginRight: "6px"}}>{valid ? "✅" : "❌"}</span>
                         {rule.label}
                     </li>
                 );
