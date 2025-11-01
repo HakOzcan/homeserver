@@ -11,7 +11,13 @@ from app.media.routes import router as media_router
 Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
-app = FastAPI(title=settings.PROJECT_NAME, root_path=settings.ROOT_PATH)
+app = FastAPI(
+    title=settings.PROJECT_NAME, 
+    root_path=settings.ROOT_PATH,
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
+)
 
 origins = [
     "https://hakserver.cc",
