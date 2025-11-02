@@ -7,7 +7,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
 
     # Get the expiration time (now + 60 mins)
-    expire = datetime.now() + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(datetime.UTC) + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
 
     # Update expiration time with newly calculated one
     to_encode.update({"exp": expire})
@@ -19,6 +19,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 def verify_access_token(token: str):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]) # Decode the payload with key and algorithm and return it 
-        return payload # Contains "sub" (username) and other claims
+        return payload # Contains "sub" (id) and other claims
     except JWTError: # Return none if cannot decode it properly
         return None

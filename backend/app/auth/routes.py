@@ -15,9 +15,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/register", response_model=schemas.UserResponse)
 def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try getting usercreate schema and current session
-    existing_user = db.query(User).filter(User.username == request.username).first() # Check if there is any user with the requested username
+    existing_user = db.query(User).filter(User.email == request.email.lower()).first() # Check if there is any user with the requested username
     if existing_user: # If so, raise an exception 
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(status_code=400, detail="Email already exists")
 
     # Validate password if it fits with complexity rules
     validate_password_strength(request.password)
@@ -25,8 +25,8 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
     # Hash requested password
     hashed_pw = pwd_context.hash(request.password)
 
-    # Create the new user using requested username and hashed password
-    new_user = User(username=request.username, hashed_password=hashed_pw)
+    # Create the new user using requested email, username and hashed password
+    new_user = User(username=request.username, email=request.email.lower(), hashed_password=hashed_pw)
 
     # Add it to database
     db.add(new_user)
@@ -45,7 +45,7 @@ def get_password_policy():
 
 @router.post("/login")
 def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == request.username).first() # Check if request's username is in our fake database and get and assign it to a variable if so
+    user = db.query(User).filter(User.email == request.email.lower()).first() # Check if request's username is in our fake database and get and assign it to a variable if so
     if not user or not pwd_context.verify(request.password, user.hashed_password): # Validate user and the request's password, if they are not correct, raise an exception
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -54,14 +54,15 @@ def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
         )
     
     # Create an access token and return it as the credentials are valid
-    access_token = create_access_token({"sub": user.username})
+    access_token = create_access_token({"sub": str(user.id), "email": user.email, "username": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.delete("/delete")
 def delete(user = Depends(get_current_user), db: Session = Depends(get_db)):
     # Delete the currently logged-in user
-    username = user["sub"]
-    db_user = db.query(User).filter(User.username == username).first()
+    id = user["sub"]
+    username = user["username"]
+    db_user = db.query(User).filter(User.id == id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     
