@@ -9,8 +9,11 @@ const api = axios.create({
 });
 
 function App() {
+  const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [view, setView] = useState("login"); // "login" | "register" | "dashboard" | "library" | "player"
@@ -22,7 +25,7 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/auth/register", { username, password });
+      await api.post("/auth/register", { email, username, password });
       setMessage("Registration successful! You can now log in.");
       setView("login");
     } catch (err) {
@@ -34,7 +37,7 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/auth/login", { username, password });
+      const res = await api.post("/auth/login", { email, password });
       const token = res.data.access_token;
       localStorage.setItem("token", token);
       setIsLoggedIn(true);
@@ -119,7 +122,7 @@ function App() {
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <h1 style={{ marginBottom: "2rem", color: "#222" }}>HomeServer</h1>
+      <h1 style={{ marginBottom: "2rem", color: "#222" }}>HakServer</h1>
 
       <div
         style={{
@@ -135,12 +138,37 @@ function App() {
       >
         {/* REGISTER */}
         {view === "register" && (
-          <form onSubmit={handleRegister}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (email !== confirmEmail) {
+              alert("Emails do not match!");
+              return;
+            }
+            if (password !== confirmPassword) {
+              alert("Passwords do not match!");
+              return;
+            }
+            handleRegister();
+            }}
+          >
             <h2 style={{ textAlign: "center" }}>Register</h2>
-            <div style={{ marginBottom: "1rem" }}>
+            <div style={{marginBottom: "1rem"}}>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                                style={{
+                  width: "90%",
+                  padding: "0.6rem",
+                  border: "1px solid #ccc",
+                  borderRadius: "6px",
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
                 type="email"
                 required
@@ -151,6 +179,26 @@ function App() {
                   borderRadius: "6px",
                 }}
               />
+            </div>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
+                placeholder="Confirm Your Email"
+                type="email"
+                required
+                style={{
+                  width: "90%",
+                  padding: "0.6rem",
+                  border: email === confirmEmail ? "1px solid #ccc" : "1px solid red",
+                  borderRadius: "6px",
+                }}
+              />
+              {
+                email && confirmEmail && email !== confirmEmail && (
+                  <p style={{color:"red", fontSize: "0.8rem"}}>Emails do not match!</p>
+                )
+              }
             </div>
             <div style={{ position: "relative", marginBottom: "1rem" }}>
               <input
@@ -188,6 +236,26 @@ function App() {
                   <PasswordRequirements password={password} />
                 </div>
               )}
+            </div>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm Your Password"
+                type="password"
+                required
+                style={{
+                  width: "90%",
+                  padding: "0.6rem",
+                  border: password === confirmPassword ? "1px solid #ccc" : "1px solid red",
+                  borderRadius: "6px",
+                }}
+              />
+              {
+                password && confirmPassword && password !== confirmPassword && (
+                  <p style={{color:"red", fontSize: "0.8rem"}}>Passwords do not match!</p>
+                )
+              }
             </div>
             <button
               type="submit"
