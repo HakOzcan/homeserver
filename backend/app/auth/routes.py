@@ -29,7 +29,6 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
 
     # Create the new user using requested email, username and hashed password
     new_user = User(
-        username=request.username, 
         email=request.email.lower(), 
         hashed_password=hashed_pw,
         is_admin=False,
@@ -52,7 +51,7 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
             to_email=new_user.email,
             subject="Verify Your Email",
             html_body=f"""
-                <p>Hello{(' ' + new_user.username) if new_user.username else ''},</p>
+                <p>Hello Dear User,</p>
                 <p>Please verify your email to complete registration:</p>
                 <p><a href="{verify_url}">{verify_url}</a></p>
                 <p>This link expires in 24 hours.</p>
