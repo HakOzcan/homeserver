@@ -25,7 +25,7 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/auth/register", { email, password });
+      await api.post("/auth/register", { email, username, password });
       setMessage("Registration successful! You can now log in.");
       setView("login");
     } catch (err) {
