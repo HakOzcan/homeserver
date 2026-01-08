@@ -69,7 +69,7 @@ def get_password_policy():
     return PASSWORD_POLICY
 
 @router.get("/verify")
-def verify_email(token: str, db: Session = Depends(get_db))
+def verify_email(token: str, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
         if payload.get("type") != "activation":
