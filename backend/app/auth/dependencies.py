@@ -14,7 +14,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         )
     return payload # Otherwise, return the payload
 
-def require_active_user(user=Depends(get_current_user))
+def require_active_user(user=Depends(get_current_user)):
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -22,7 +22,7 @@ def require_active_user(user=Depends(get_current_user))
         )
     return user
 
-def require_admin(user=Depends(require_active_user))
+def require_admin(user=Depends(require_active_user)):
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only.")
     return user
