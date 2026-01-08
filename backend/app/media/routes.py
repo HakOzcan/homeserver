@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse, StreamingResponse
 from app.auth.dependencies import get_current_user
 from app.core.config import settings
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import jwt
 
 router = APIRouter(prefix="/media", tags=["Media"])
@@ -22,7 +22,7 @@ async def get_signed_stream_url(
     """
     Returns a short-lived signed URL to stream a video file.
     """
-    expire = datetime.utcnow() + timedelta(minutes=SIGN_EXPIRATION_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=SIGN_EXPIRATION_MINUTES)
     token_data = {"sub": user["sub"], "path": path, "exp": expire}
     signed_token = jwt.encode(token_data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 

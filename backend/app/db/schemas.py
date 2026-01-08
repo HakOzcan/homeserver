@@ -4,19 +4,22 @@ from pydantic import BaseModel, EmailStr, Field
 # User Schemas
 # ----------------------------
 
-class UserBase(BaseModel):
+class UserCreate(BaseModel):
     email: EmailStr
-    id: int
-
-class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
-    username: str | None = None
+    username: str = Field(min_length=2, max_length=50)
 
-class UserLogin(UserBase):
+class UserLogin(BaseModel):
+    email: EmailStr
     password: str
 
-class UserResponse(UserBase):
-    username: str | None = None
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    username: str
+    is_admin: bool
+    is_active: bool
+    email_verified: bool
 
     class Config:
-        orm_mode = True  # allow SQLAlchemy models to be returned directly
+        from_attributes = True
