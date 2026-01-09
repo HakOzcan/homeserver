@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from app.core.security import create_access_token, create_activation_token
+from app.core.security import create_access_token, create_activation_token, verify_activation_token
 from app.db.database import get_db
 from app.db.models import User
 from app.db import schemas
@@ -69,16 +69,11 @@ def get_password_policy():
     from app.auth.validators import PASSWORD_POLICY
     return PASSWORD_POLICY
 
-@router.get("/verify?token=")
+@router.get("/verify")
 def verify_email(token: str, db: Session = Depends(get_db)):
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
-        if payload.get("type") != "activation":
-            raise HTTPException(status_code=400, detail="Invalid token")
-    except JWTError:
-        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    email = verify_activation_token(token)
 
-    user = db.query(User).filter(User.email == payload.get("sub")).first()
+    user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
