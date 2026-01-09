@@ -23,7 +23,6 @@ function App() {
 
   // --- Register ---
   const handleRegister = async (e) => {
-    e.preventDefault();
     try {
       await api.post("/auth/register", { email, username, password });
       setMessage("Registration successful! You can now log in.");
@@ -139,6 +138,8 @@ function App() {
         {/* REGISTER */}
         {view === "register" && (
           <form onSubmit={(e) => {
+            e.preventDefault();
+
             if (email !== confirmEmail) {
               alert("Emails do not match!");
               return;
