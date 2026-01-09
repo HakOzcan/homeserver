@@ -297,9 +297,10 @@ function App() {
             <h2 style={{ textAlign: "center" }}>Login</h2>
             <div style={{ marginBottom: "1rem" }}>
               <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
                 required
                 style={{
                   width: "90%",
