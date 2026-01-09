@@ -69,7 +69,7 @@ def get_password_policy():
     from app.auth.validators import PASSWORD_POLICY
     return PASSWORD_POLICY
 
-@router.get("/verify")
+@router.get("/verify?token=")
 def verify_email(token: str, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
