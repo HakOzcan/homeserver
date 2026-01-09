@@ -15,7 +15,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 # Hold password context for bcrpyt scheme
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.post("/register", status_code=201)
+@router.post("/register")
 def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try getting usercreate schema and current session
     existing_user = db.query(User).filter(User.email == request.email.lower()).first() # Check if there is any user with the requested username
     if existing_user: # If so, raise an exception 
