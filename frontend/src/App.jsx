@@ -139,7 +139,6 @@ function App() {
         {/* REGISTER */}
         {view === "register" && (
           <form onSubmit={(e) => {
-            e.preventDefault();
             if (email !== confirmEmail) {
               alert("Emails do not match!");
               return;
