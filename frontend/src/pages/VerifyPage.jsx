@@ -5,10 +5,9 @@ import "../styles/verify.css";
 
 export default function VerifyPage() {
   const [params] = useSearchParams();
-  const requestedToken = params.get("token");
+  const token = params.get("token");
 
   const [status, setStatus] = useState("idle"); // idle | ok | fail | loading | resent
-  const [token, setToken] = useState(encodeURIComponent(requestedToken));
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
@@ -23,7 +22,7 @@ export default function VerifyPage() {
       setMsg("");
 
       try {
-        await api.get("/auth/verify", token);
+        await api.get("/auth/verify", encodeURIComponent(token));
         setStatus("ok");
         setMsg("Your email was verified successfully. Please wait for admin approval.");
       } catch (err) {
@@ -39,7 +38,7 @@ export default function VerifyPage() {
   setMsg("Sending verification email...");
 
     try{
-        const res = await api.get("/auth/resend-verification", token);
+        const res = await api.get("/auth/resend-verification", encodeURIComponent(token));
         setStatus("resent");
         setMsg(res.data.message);
       } catch (err) {
