@@ -8,7 +8,7 @@ export default function VerifyPage() {
   const requestedToken = params.get("token");
 
   const [status, setStatus] = useState("idle"); // idle | ok | fail | loading | resent
-  const [token, setToken] = useState(requestedToken);
+  const [token, setToken] = useState(encodeURIComponent(requestedToken));
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
