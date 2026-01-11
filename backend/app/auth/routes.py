@@ -72,7 +72,7 @@ def resend_verification_email(token: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    verify_url = f"{settings.API_BASE_URL}{settings.ROOT_PATH}/auth/verify?token={create_activation_token(user.email)}"
+    verify_url = f"{settings.VIRTUAL_HOSTS[1]}/verify?token={create_activation_token(user.email)}"
 
     try:
         send_email(
@@ -102,6 +102,8 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if user.email_verified:
+        raise HTTPException(status_code=409, detail="Your email has been already verified.")
 
     user.email_verified = True
     db.commit()
