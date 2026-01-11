@@ -46,7 +46,7 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
     # Refresh the database with new user
     db.refresh(new_user)
 
-    verify_url = f"{settings.API_BASE_URL}{settings.ROOT_PATH}/auth/verify?token={create_activation_token(new_user.email)}"
+    verify_url = f"{settings.VIRTUAL_HOSTS[1]}/auth/verify?token={create_activation_token(new_user.email)}"
 
     try:
         send_email(
