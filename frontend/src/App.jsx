@@ -7,7 +7,7 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import LibraryPage from "./pages/LibraryPage.jsx";
 import PlayerPage from "./pages/PlayerPage.jsx";
-import VerifyPage from "./VerifyPage.jsx";
+import VerifyPage from "./pages/VerifyPage.jsx";
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");
