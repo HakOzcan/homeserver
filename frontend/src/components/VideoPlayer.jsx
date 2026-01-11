@@ -11,7 +11,7 @@ const VideoPlayer = ({ video, onBack }) => {
             const res = await axios.get(
                 `https://api.hakserver.cc/api/media/play/${video}`,
                 {
-                    headers: { Authorization: `Bearer ${token} `},
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
             videoRef.current.src = res.data.url;

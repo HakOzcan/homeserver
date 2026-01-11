@@ -1,0 +1,94 @@
+:root {
+  --bg: #0b0f14;
+  --card: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.12);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.70);
+  --primary: #5b8cff;
+  --danger: #d94b4b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+a { color: inherit; }
+
+.page {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.page--center {
+  display: grid;
+  place-items: start center;
+  padding-top: 72px;
+}
+
+.card {
+  width: min(520px, 92vw);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  backdrop-filter: blur(10px);
+}
+
+.card__title {
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+.muted { color: var(--muted); }
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.row--center {
+  justify-content: center;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.btn--primary {
+  background: rgba(91, 140, 255, 0.18);
+  border-color: rgba(91, 140, 255, 0.35);
+}
+
+.btn--danger {
+  background: rgba(217, 75, 75, 0.18);
+  border-color: rgba(217, 75, 75, 0.35);
+}
+
+.btn--ghost {
+  background: rgba(255,255,255,0.02);
+}
+
+.btn--half {
+  width: 45%;
+}
