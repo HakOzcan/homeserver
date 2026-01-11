@@ -46,7 +46,7 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
     # Refresh the database with new user
     db.refresh(new_user)
 
-    verify_url = f"{settings.VIRTUAL_HOSTS[1]}/verify?token={create_activation_token(new_user.email)}"
+    verify_url = f"{settings.FRONTEND_URL}/verify?token={create_activation_token(new_user.email)}"
 
     try:
         send_email(
@@ -72,7 +72,7 @@ def resend_verification_email(token: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    verify_url = f"{settings.VIRTUAL_HOSTS[1]}/verify?token={create_activation_token(user.email)}"
+    verify_url = f"{settings.FRONTEND_URL}/verify?token={create_activation_token(user.email)}"
 
     try:
         send_email(

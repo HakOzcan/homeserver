@@ -3,13 +3,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Helper to get items as a list from .env
-def get_env_list(key: str) -> list[str]:
-    value = os.getenv(key)
-    if not value:
-        return []
-    return [item.strip() for item in value.split(",") if item.strip()]
-
 class Settings:
     PROJECT_NAME = "Homeserver API"
     ROOT_PATH = "/api"
@@ -32,6 +25,6 @@ class Settings:
     SMTP_PASS = os.getenv("SMTP_PASS")
     SMTP_FROM = os.getenv("SMTP_FROM", os.getenv("SMTP_USER"))
     API_BASE_URL = os.getenv("API_BASE_URL", "https://api.hakserver.cc") 
-    VIRTUAL_HOSTS = get_env_list("VIRTUAL_HOST")
+    FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 settings = Settings()
