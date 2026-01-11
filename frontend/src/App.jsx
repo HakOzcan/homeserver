@@ -17,14 +17,13 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [view, setView] = useState("verify"); // "login" | "register" | "dashboard" | "library" | "player"
+  const [view, setView] = useState("login"); // "login" | "register" | "dashboard" | "library" | "player"
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showPasswordRules, setShowPasswordRules] = useState(false);
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("token")) {
+  if (window.location.pathname.startsWith("/verify")) {
     setView("verify");
   }
   }, []);
