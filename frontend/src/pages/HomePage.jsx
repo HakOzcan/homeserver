@@ -7,8 +7,8 @@ export default function HomePage() {
     <div className="home">
       <div className="home__overlay" />
       <div className="home__card">
-        <h1 className="home__title">HomeServer</h1>
-        <p className="home__subtitle">Your personal library — streaming from home.</p>
+        <h1 className="home__title">HakServer</h1>
+        <p className="home__subtitle">Your personal cloud streaming and storage platform.</p>
 
         <div className="home__actions">
           <Link className="btn btn--primary" to="/login">

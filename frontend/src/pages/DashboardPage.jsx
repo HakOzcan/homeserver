@@ -13,7 +13,6 @@ export default function DashboardPage() {
     const load = async () => {
       try {
         const res = await api.get("/protected");
-        // your backend returns: { message: `Hello ${user['sub']}, ...` }
         // If sub is email now, you might want a /me endpoint later.
         setDisplayName(res.data.message || "");
       } catch {
@@ -45,7 +44,7 @@ export default function DashboardPage() {
   return (
     <div className="page">
       <div className="topbar">
-        <div className="brand">HomeServer</div>
+        <div className="brand">HakServer</div>
         <button className="btn btn--ghost" onClick={logout}>
           Logout
         </button>

@@ -33,7 +33,6 @@ export default function RegisterPage() {
     setMsg("");
     setLoading(true);
     try {
-      // IMPORTANT: this assumes your backend expects { email, password, username }
       await api.post("/auth/register", { email, password, username });
       setMsg("Registered! Please check your email to verify your account.");
       // send user to login after a short delay (or immediately)
