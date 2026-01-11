@@ -7,7 +7,7 @@ export default function VerifyPage() {
   const [params] = useSearchParams();
   const token = params.get("token");
 
-  const [status, setStatus] = useState("idle"); // idle | ok | fail | loading | resent
+  const [status, setStatus] = useState("idle"); // idle | loading | ok | fail | resent
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
@@ -21,13 +21,26 @@ export default function VerifyPage() {
       setStatus("loading");
       setMsg("");
 
+      // 🔎 DEBUG: guarantees visibility even if request fails
+      const url = `/auth/verify?token=${encodeURIComponent(token)}`;
+      console.log("VERIFY REQUEST URL:", api.defaults.baseURL + url);
+
       try {
-        await api.get("/auth/verify?", encodeURIComponent(token));
+        const res = await api.get(url); // ← token is now part of URL
         setStatus("ok");
-        setMsg("Your email was verified successfully. Please wait for admin approval.");
+        setMsg(res.data.message || "Email verified.");
       } catch (err) {
         setStatus("fail");
-        setMsg(err.response?.data?.detail || "Verification failed. Token may be expired.");
+
+        const detail = err?.response?.data?.detail;
+        const text =
+          typeof detail === "string"
+            ? detail
+            : Array.isArray(detail)
+              ? detail.map(e => e.msg).join(", ")
+              : "Verification failed.";
+
+        setMsg(text);
       }
     };
 
@@ -35,19 +48,26 @@ export default function VerifyPage() {
   }, [token]);
 
   const handleReSend = async () => {
-  setMsg("Sending verification email...");
-
-    try{
-        const res = await api.get("/auth/resend-verification?", encodeURIComponent(token));
-        setStatus("resent");
-        setMsg(res.data.message);
-      } catch (err) {
-        setStatus("fail");
-        setMsg(err.response?.data?.detail || "Couldn't send the verification email!");
+    if (!token) {
+      setStatus("fail");
+      setMsg("Missing verification token.");
+      return;
     }
-  }
 
+    setMsg("Sending verification email...");
 
+    const url = `/auth/resend-verification?token=${encodeURIComponent(token)}`;
+    console.log("RESEND REQUEST URL:", api.defaults.baseURL + url);
+
+    try {
+      const res = await api.post(url); // ← token visible
+      setStatus("resent");
+      setMsg(res.data.message);
+    } catch (err) {
+      setStatus("fail");
+      setMsg(err?.response?.data?.detail || "Couldn't send verification email.");
+    }
+  };
 
   return (
     <div className="page page--center">
@@ -55,22 +75,21 @@ export default function VerifyPage() {
         <h2 className="card__title">Email Verification</h2>
 
         {status === "loading" && <p className="muted">Verifying your email...</p>}
-
-        {status === "ok" && <p className={"msg msg--ok"}>{msg}</p>}
-
-        {status === "fail" && <p className={"msg msg--error"}>{msg}</p>}
+        {status === "ok" && <p className="msg msg--ok">{msg}</p>}
+        {status === "fail" && <p className="msg msg--error">{msg}</p>}
+        {status === "resent" && <p className="msg msg--ok">{msg}</p>}
 
         <div className="row row--center">
           {status === "ok" && (
             <Link className="btn btn--ghost" to="/login">
-            Go to Login
-          </Link>
+              Go to Login
+            </Link>
           )}
 
-          {status === "fail" && (
+          {(status === "fail" || status === "resent") && (
             <button className="btn btn--ghost" onClick={handleReSend}>
-            Re-Send Verification
-          </button>
+              Re-Send Verification
+            </button>
           )}
         </div>
       </div>
