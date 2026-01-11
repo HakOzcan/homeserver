@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { api } from "../lib/api";
+import { api } from "../lib/api.jsx";
 import PasswordRequirements from "../components/PasswordRequirements.jsx";
 import "../styles/auth.css";
 

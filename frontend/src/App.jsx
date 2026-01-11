@@ -1,13 +1,13 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import DashboardPage from "./pages/DashboardPage";
-import LibraryPage from "./pages/LibraryPage";
-import PlayerPage from "./pages/PlayerPage";
-import VerifyPage from "./VerifyPage";
+import HomePage from "./pages/HomePage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
+import LibraryPage from "./pages/LibraryPage.jsx";
+import PlayerPage from "./pages/PlayerPage.jsx";
+import VerifyPage from "./VerifyPage.jsx";
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");

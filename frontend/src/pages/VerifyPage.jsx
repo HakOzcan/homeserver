@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { api } from "./lib/api.jsx";
-import "./styles/verify.css";
+import { api } from "../lib/api.jsx";
+import "../styles/verify.css";
 
 export default function VerifyPage() {
   const [params] = useSearchParams();

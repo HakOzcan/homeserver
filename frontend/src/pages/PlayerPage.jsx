@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import VideoPlayer from "../components/VideoPlayer";
+import VideoPlayer from "../components/VideoPlayer.jsx";
 import "../styles/app.css";
 
 export default function PlayerPage() {
