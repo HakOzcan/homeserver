@@ -22,7 +22,7 @@ export default function VerifyPage() {
       setMsg("");
 
       try {
-        await api.get("/auth/verify", encodeURIComponent(token));
+        await api.get("/auth/verify?", encodeURIComponent(token));
         setStatus("ok");
         setMsg("Your email was verified successfully. Please wait for admin approval.");
       } catch (err) {
@@ -38,7 +38,7 @@ export default function VerifyPage() {
   setMsg("Sending verification email...");
 
     try{
-        const res = await api.get("/auth/resend-verification", encodeURIComponent(token));
+        const res = await api.get("/auth/resend-verification?", encodeURIComponent(token));
         setStatus("resent");
         setMsg(res.data.message);
       } catch (err) {
