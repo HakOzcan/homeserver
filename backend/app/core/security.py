@@ -24,7 +24,7 @@ def verify_access_token(token: str):
         return None
 
 def create_activation_token(email: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=3)
+    expire = datetime.now(timezone.utc) + timedelta(hours=settings.ACTIVATION_TOKEN_EXPIRE_HOURS)
     payload = {
         "sub": email,
         "type": "activation",
