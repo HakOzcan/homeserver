@@ -41,3 +41,14 @@ def verify_activation_token(token:str) -> str:
     if not email:
         raise ValueError("Missing Subject")
     return email
+
+def extract_email_from_expired_token(token:str) -> str:
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM, options={"verify_exp": False})
+    if payload.get("type") != "activation":
+        raise ValueError("Invalid token type")
+    email = payload.get("sub")
+    if not email:
+        raise ValueError("Missing Subject")
+    return email
+
+

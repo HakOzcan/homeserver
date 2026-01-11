@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from app.core.security import create_access_token, create_activation_token, verify_activation_token
+from app.core.security import create_access_token, create_activation_token, verify_activation_token, extract_email_from_expired_token
 from app.db.database import get_db
 from app.db.models import User
 from app.db import schemas
@@ -64,6 +64,32 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
 
     return {"message": "Registration request received. Please confirm your email address using activation email to activate your account."}
 
+@router.post("/resend-verification")
+def resend_verification_email(token: str, db: Session = Depends(get_db)):
+    email = extract_email_from_expired_token(token)
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    verify_url = f"{settings.API_BASE_URL}{settings.ROOT_PATH}/auth/verify?token={create_activation_token(user.email)}"
+
+    try:
+        send_email(
+            to_email=user.email,
+            subject="Verify Your Email",
+            html_body=f"""
+                <p>Hello {user.username},</p>
+                <p>Please verify your email to complete registration:</p>
+                <p><a href="{verify_url}">{verify_url}</a></p>
+                <p>This link expires in 24 hours.</p>
+            """,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send verification email: {e}")
+    
+    return {"message": "Verification link re-sent."}
+
 @router.get("/password-policy")
 def get_password_policy():
     from app.auth.validators import PASSWORD_POLICY
@@ -79,7 +105,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 
     user.email_verified = True
     db.commit()
-    return {"message": "Email verified. Await admin approval to complete registration process."}
+    return {"message": "Email verified.", "email_verified": user.email_verified, "is_active": user.is_active}
 
 @router.post("/login")
 def login(request: schemas.UserLogin, db: Session = Depends(get_db)):

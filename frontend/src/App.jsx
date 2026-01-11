@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import VideoPlayer from "./components/VideoPlayer";
 import PasswordRequirements from "./components/PasswordRequirements";
+import VerifyPage from "./pages/VerifyPage";
 
 // Axios instance for API
 const api = axios.create({
@@ -20,6 +21,13 @@ function App() {
   const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showPasswordRules, setShowPasswordRules] = useState(false);
+
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("token")) {
+    setView("verify");
+  }
+  }, []);
 
   // --- Register ---
   const handleRegister = async (e) => {
@@ -289,6 +297,18 @@ function App() {
               </button>
             </p>
           </form>
+        )}
+
+        {/* VERIFY */}
+        {view === "verify" && (
+          <VerifyPage
+            api={api}
+            onGoLogin={() => {
+              // clear query string so it doesn't keep re-opening verify view
+              window.history.replaceState({}, document.title, window.location.pathname);
+              setView("login");
+            }}
+          />
         )}
 
         {/* LOGIN */}
