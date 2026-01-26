@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
       <div className="content content--narrow">
         <h2>Dashboard</h2>
-        <p className="muted">{displayName ? displayName : "Welcome!"}</p>
+        <p className="muted">{"Welcome, " + displayName ? displayName : "user" + "!"}</p>
 
         <div className="row">
           <button className="btn btn--primary" onClick={() => nav("/library")}>
