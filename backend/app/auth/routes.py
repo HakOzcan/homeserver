@@ -19,7 +19,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.get("/me")
-def me(user=Depends(get_current_user), db: Session = Depends(get_db))
+def me(user=Depends(get_current_user), db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user["sub"].first())
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found!")
