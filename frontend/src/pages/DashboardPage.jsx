@@ -9,12 +9,12 @@ export default function DashboardPage() {
   const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
-    // Optional: call /protected to get username from token
+    // Optional: call /me to get username from token
     const load = async () => {
       try {
-        const res = await api.get("/protected");
+        const res = await api.get("/me");
         // If sub is email now, you might want a /me endpoint later.
-        setDisplayName(res.data.message || "");
+        setDisplayName(res.data.username || "");
       } catch {
         // token expired
         localStorage.removeItem("token");
