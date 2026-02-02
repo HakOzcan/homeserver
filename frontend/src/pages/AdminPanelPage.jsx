@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../lib/api.jsx";
 
 
-export default function AdminPanel() {
+export default function AdminPanelPage() {
   const [pending, setPending] = useState([]);
   const [msg, setMsg] = useState("");
 

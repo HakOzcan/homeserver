@@ -8,6 +8,7 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import LibraryPage from "./pages/LibraryPage.jsx";
 import PlayerPage from "./pages/PlayerPage.jsx";
 import VerifyPage from "./pages/VerifyPage.jsx";
+import AdminPanelPage from "./pages/AdminPanelPage.jsx";
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");
@@ -49,6 +50,14 @@ export default function App() {
           </RequireAuth>
         }
       />
+      <Route
+        path="/admin"
+        element={
+          <RequireAuth>
+            <AdminPanelPage />
+          </RequireAuth>
+        }
+      ></Route>
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
