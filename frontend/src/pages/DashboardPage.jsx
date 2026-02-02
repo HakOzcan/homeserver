@@ -7,12 +7,14 @@ export default function DashboardPage() {
   const nav = useNavigate();
   const [msg, setMsg] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
         const res = await api.get("/auth/me");
         setDisplayName(res.data.username || "");
+        setIsAdmin(res.data.is_admin);
       } catch {
         // token expired
         localStorage.removeItem("token");
@@ -56,6 +58,13 @@ export default function DashboardPage() {
           <button className="btn btn--primary" onClick={() => nav("/library")}>
             Open Library
           </button>
+          {
+            isAdmin && (
+              <button className="btn btn--primary" onClick={() => nav("/admin")}>
+                Admin Panel
+              </button>
+            )
+          }
           <button className="btn btn--danger" onClick={deleteMe}>
             Delete My Account
           </button>
