@@ -19,7 +19,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 def verify_access_token(token: str):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]) # Decode the payload with key and algorithm and return it 
-        return payload # Contains "sub" (id) and other claims
+        return payload # Contains "sub" (email) and other claims
     except JWTError: # Return none if cannot decode it properly
         return None
 

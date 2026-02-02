@@ -18,13 +18,13 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 # Hold password context for bcrpyt scheme
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 @router.get("/me")
 def me(user=Depends(get_current_user), db: Session = Depends(get_db)):
-
-    db_user = db.query(User).filter(User.email == user["email"].lower()).first()
+    db_user = db.query(User).filter(User.email == user["sub"]).first()
     if not db_user:
-        raise HTTPException(status_code=404, detail="User not found!")
-    
+        raise HTTPException(status_code=404, detail="User not found")
+
     return {
         "email": db_user.email,
         "username": db_user.username,
