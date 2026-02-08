@@ -58,6 +58,9 @@ export default function DashboardPage() {
           <button className="btn btn--primary" onClick={() => nav("/library")}>
             Open Library
           </button>
+          <button className="btn btn--primary" onClick={() => nav("/games")}>
+            Open Games
+          </button>
           {
             isAdmin && (
               <button className="btn btn--primary" onClick={() => nav("/admin")}>

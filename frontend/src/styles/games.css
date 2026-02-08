@@ -1,0 +1,90 @@
+.gamesPage {
+  min-height: 100vh;
+  padding: 2rem;
+  background: radial-gradient(1200px 600px at 30% 20%, rgba(255,255,255,0.08), transparent),
+              radial-gradient(900px 500px at 70% 60%, rgba(255,255,255,0.06), transparent),
+              linear-gradient(135deg, #0b1020, #0b1b2a);
+  color: white;
+}
+
+.gamesHeader {
+  max-width: 1100px;
+  margin: 0 auto 1.5rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gamesTitle {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+}
+
+.gamesSubtitle {
+  margin: 0.35rem 0 0 0;
+  opacity: 0.85;
+}
+
+.gamesGrid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.gameCard {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.gameCoverWrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgba(0,0,0,0.25);
+}
+
+.gameCover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gameCardBody {
+  padding: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.gameName {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Small shared button styles (safe to reuse elsewhere) */
+.btn {
+  padding: 0.55rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+.btn.secondary {
+  background: transparent;
+}
