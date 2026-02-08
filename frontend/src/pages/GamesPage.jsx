@@ -5,22 +5,22 @@ import "../styles/games.css";
 const MOCK_GAMES = [
   {
     id: "horror-lab",
-    title: "Horror Lab (Prototype)",
+    title: "Horror Lab (Mockup)",
     cover: "https://picsum.photos/seed/horror/640/360",
   },
   {
     id: "space-runner",
-    title: "Space Runner (Prototype)",
+    title: "Space Runner (Mockup)",
     cover: "https://picsum.photos/seed/space/640/360",
   },
   {
     id: "neon-racer",
-    title: "Neon Racer (Prototype)",
+    title: "Neon Racer (Mockup)",
     cover: "https://picsum.photos/seed/neon/640/360",
   },
   {
     id: "castle-defense",
-    title: "Castle Defense (Prototype)",
+    title: "Castle Defense (Mockup)",
     cover: "https://picsum.photos/seed/castle/640/360",
   },
 ];
@@ -34,12 +34,12 @@ export default function GamesPage() {
         <div>
           <h1 className="gamesTitle">Cloud Gaming</h1>
           <p className="gamesSubtitle">
-            Mockup: pick a game and press Play (streaming will come later).
+            Pick a game and press Play (currently dysfunctional).
           </p>
         </div>
 
-        <button className="btn secondary" onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
+        <button className="btn btn--ghost" onClick={() => navigate("/dashboard")}>
+          ← Dashboard
         </button>
       </div>
 
