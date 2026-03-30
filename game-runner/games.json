@@ -1,0 +1,11 @@
+[
+    {
+        "id": "snake",
+        "name": "Snake",
+        "type": "python",
+        "executable": "games/python/snake.py",
+        "description": "Classic snake game - eat, grow and stay away from walls and your tail!",
+        "cover": "games/python/snake.jpg",
+        "resolution": "800x600"
+    }
+]
