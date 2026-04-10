@@ -49,7 +49,7 @@ export default function GamesPage() {
 
               <button
                 className="btn"
-                onClick={() => navigate('/games/play/${g.id}')}
+                onClick={() => navigate(`/games/play/${g.id}`)}
               >
                 Play
               </button>
