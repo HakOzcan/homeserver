@@ -27,7 +27,4 @@ class Settings:
     API_BASE_URL = os.getenv("API_BASE_URL", "https://api.hakserver.cc") 
     FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-    # Cloud Gaming
-    GAME_RUNNER_URL = os.getenv("GAME_RUNNER_URL", "http://game-runner:8000")
-
 settings = Settings()
