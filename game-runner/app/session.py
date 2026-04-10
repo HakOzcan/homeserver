@@ -72,7 +72,7 @@ class GameSession:
 
         @throws RuntimeError If Xvfb or the game process fails to start.
         """
-        display = f"{self.display_number}"
+        display = f":{self.display_number}"
 
         ## --- Step 1: Start Xvfb (virtual framebuffer) ---
         logger.info(f"[{self.session_id}] Starting Xvfb on display {display} ({self.width}x{self.height})")

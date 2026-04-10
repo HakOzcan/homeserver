@@ -50,7 +50,7 @@ class InputInjector:
         @brief Initialize the injector for a specific X11 display.
         @param display_number The display number (e.g. 99 → DISPLAY=":99").
         """
-        self.display = f"{display_number}"
+        self.display = f":{display_number}"
         ## xdotool reads DISPLAY from the environment to know which display to target
         self.env = {"DISPLAY": self.display}
 
