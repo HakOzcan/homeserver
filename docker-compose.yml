@@ -29,26 +29,26 @@ services:
       retries: 3
   
   game-runner:
-  build: ./game-runner
-  container_name: homeserver-game-runner
-  expose:
-    - "9000"
-  depends_on:
-    - backend
-  restart: unless-stopped
-  deploy:
-    resources:
-      limits:
-        memory: 8G
-        cpus: '4.0'
-  logging:
-    driver: "json-file"
-    options: {max-size: "10m", max-file: "3"}
-  healthcheck:
-    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
-    interval: 30s
-    timeout: 10s
-    retries: 3
+    build: ./game-runner
+    container_name: homeserver-game-runner
+    expose:
+      - "9000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+    logging:
+      driver: "json-file"
+      options: {max-size: "10m", max-file: "3"}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build: ./frontend
