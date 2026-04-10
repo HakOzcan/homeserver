@@ -38,7 +38,7 @@ class FrameCapture:
         self.height = height
         self.fps = fps
         self.process = None
-        self.current_frame = None
+        self._current_frame = None
         self._read_task = None
     
     async def start(self):
