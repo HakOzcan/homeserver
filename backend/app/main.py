@@ -7,6 +7,7 @@ from app.db.models import Base
 from app.auth.dependencies import get_current_user
 from app.media.routes import router as media_router
 from app.admin.routes import router as admin_router
+from app.gaming.routes import router as gaming_router
 
 # Initialize DB
 Base.metadata.create_all(bind=engine)
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(media_router)
+app.include_router(gaming_router)
 app.include_router(admin_router)
 
 @app.get("/")
