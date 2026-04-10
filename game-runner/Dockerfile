@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcursor1 \
     libxrandr2 \
     libxi6 \
-    livasound2t64 \
+    libasound2t64 \
     libpulse0 \
     libsdl2-2.0-0 \
     libsdl2-image-2.0-0 \
