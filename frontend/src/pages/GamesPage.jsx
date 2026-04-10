@@ -1,32 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api.jsx";
 import "../styles/games.css";
-
-const MOCK_GAMES = [
-  {
-    id: "horror-lab",
-    title: "Horror Lab (Mockup)",
-    cover: "https://picsum.photos/seed/horror/640/360",
-  },
-  {
-    id: "space-runner",
-    title: "Space Runner (Mockup)",
-    cover: "https://picsum.photos/seed/space/640/360",
-  },
-  {
-    id: "neon-racer",
-    title: "Neon Racer (Mockup)",
-    cover: "https://picsum.photos/seed/neon/640/360",
-  },
-  {
-    id: "castle-defense",
-    title: "Castle Defense (Mockup)",
-    cover: "https://picsum.photos/seed/castle/640/360",
-  },
-];
 
 export default function GamesPage() {
   const navigate = useNavigate();
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    api
+      .get("/gaming/catalog")
+      .then((res) => setGames(res.data))
+      .catch((err) => setError("Failed to load game catalog"))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="gamesPage">
@@ -34,28 +23,33 @@ export default function GamesPage() {
         <div>
           <h1 className="gamesTitle">Cloud Gaming</h1>
           <p className="gamesSubtitle">
-            Pick a game and press Play (currently dysfunctional).
+            Pick a game and press Play - games run server-side.
           </p>
         </div>
-
         <button className="btn btn--ghost" onClick={() => navigate("/dashboard")}>
           ← Dashboard
         </button>
       </div>
 
+      {loading && <p className="gamesLoading">Loading catalog...</p>}
+      {error && <p className="gamesError">{error}</p>}
+
       <div className="gamesGrid">
-        {MOCK_GAMES.map((g) => (
+        {games.map((g) => (
           <div key={g.id} className="gameCard">
             <div className="gameCoverWrap">
-              <img className="gameCover" src={g.cover} alt={g.title} />
+              <div className="gameCoverPlaceholder">
+                <span>{g.name[0]}</span>
+              </div>
             </div>
 
             <div className="gameCardBody">
-              <div className="gameName">{g.title}</div>
+              <div className="gameName">{g.name}</div>
+              <div className="gameType">{g.type}</div>
 
               <button
                 className="btn"
-                onClick={() => alert("Coming soon: cloud gaming streaming + input!")}
+                onClick={() => navigate('/games/play/${g.id}')}
               >
                 Play
               </button>

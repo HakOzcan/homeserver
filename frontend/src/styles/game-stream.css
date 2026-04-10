@@ -1,0 +1,103 @@
+.streamPage {
+  min-height: 100vh;
+  background: #0a0a0f;
+  display: flex;
+  flex-direction: column;
+}
+
+.streamHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.streamInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.streamStatus {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+.streamStatus--connecting {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.streamStatus--connected {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.streamStatus--disconnected {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.streamStatus--error {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.streamFps {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+.streamContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 1rem;
+}
+
+.streamCanvas {
+  max-width: 100%;
+  max-height: calc(100vh - 80px);
+  border-radius: 4px;
+  cursor: crosshair;
+  image-rendering: auto;
+}
+
+.streamOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+}
+
+.streamOverlay--error {
+  color: #f87171;
+}
+
+.streamOverlay button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.streamOverlay button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

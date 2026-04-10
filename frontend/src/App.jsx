@@ -10,6 +10,7 @@ import PlayerPage from "./pages/PlayerPage.jsx";
 import VerifyPage from "./pages/VerifyPage.jsx";
 import AdminPanelPage from "./pages/AdminPanelPage.jsx";
 import GamesPage from "./pages/GamesPage.jsx";
+import GameStreamPage from "./pages/GameStreamPage.jsx";
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");
@@ -64,6 +65,14 @@ export default function App() {
         element={
           <RequireAuth>
             <GamesPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/games/play/:gameId"
+        element={
+          <RequireAuth>
+            <GameStreamPage />
           </RequireAuth>
         }
       ></Route>

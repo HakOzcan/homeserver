@@ -70,21 +70,36 @@
   line-height: 1.2;
 }
 
-/* Small shared button styles (safe to reuse elsewhere) */
-.btn {
-  padding: 0.55rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.12);
-  color: white;
-  cursor: pointer;
-  font-weight: 600;
+.gameCoverPlaceHolder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
 }
 
-.btn:hover {
-  background: rgba(255,255,255,0.18);
+.gameCoverPlaceHolder span {
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.3);
 }
 
-.btn.secondary {
-  background: transparent;
+.gameType {
+  font-size: 3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.gamesLoading,
+.gamesError {
+  text-align: center;
+  max-width: 1100px;
+  margin: 2rem auto;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.gamesError {
+  color: #f87171;
 }
