@@ -55,11 +55,11 @@ class FrameCapture:
             "-f", "x11grab",                                ## Input format: X11 screen capture
             "-framerate", str(self.fps),                    ## Capture frame rate
             "-video_size", f"{self.width}x{self.height}",   ## Resolution to grab
-            "-i", f":{self.display_number}",                 ## Which display to capture (e.g. ":99")
+            "-i", f":{self.display_number}",                ## Which display to capture (e.g. ":99")
             "-f", "image2pipe",                             ## Output format: pipe individual images
             "-vcodec", "mjpeg",                             ## Encode each frame as JPEG
             "-q:v", "5",                                    ## JPEG quality (2=best, 31=worst)
-            "--fflags", "nobuffer",                         ## Minimize output buffering for lower latency
+            "-fflags", "nobuffer",                          ## Minimize output buffering for lower latency
             "-an",                                          ## No audio for now
             "pipe:1",
         ]
