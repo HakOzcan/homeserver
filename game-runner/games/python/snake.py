@@ -17,7 +17,7 @@ import pygame
 WIDTH = int(os.environ.get("GAME_WIDTH", 800))
 HEIGHT = int(os.environ.get("GAME_HEIGHT", 600))
 CELL_SIZE = 20
-FPS = 30
+FPS = 12
 
 ## Colors - dark theme to match the frontend aesthetic
 BG_COLOR = (15, 15, 25)
