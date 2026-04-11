@@ -269,7 +269,7 @@ class SessionManager:
         
         await session.stop()
         self._used_displays.discard(session.display_number)
-        del self.sessions[session_id]
+        self.sessions.pop(session_id, None)
         return True
     
     def get_session(self, session_id: str) -> GameSession | None:
