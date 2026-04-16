@@ -7,5 +7,14 @@
         "description": "Classic snake game - eat, grow and stay away from walls and your tail!",
         "cover": "games/python/snake.jpg",
         "resolution": "800x600"
+    },
+    {
+        "id": "tetris",
+        "name": "Tetris",
+        "type": "python",
+        "executable": "games/python/tetris.py",
+        "description": "Classic falling-blocks puzzle. Arrows to move, Up to rotate, Space to hard drop.",
+        "cover": "games/python/tetris.jpg",
+        "resolution": "800x600"
     }
 ]
