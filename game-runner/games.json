@@ -16,5 +16,14 @@
         "description": "Classic falling-blocks puzzle. Arrows to move, Up to rotate, Space to hard drop.",
         "cover": "games/python/tetris.jpg",
         "resolution": "800x600"
+    },
+    {
+        "id": "minesweeper",
+        "name": "Minesweeper",
+        "type": "python",
+        "executable": "games/python/minesweeper.py",
+        "description": "Classic mine sweeper. Left click to reveal, right click to flag.",
+        "cover": "games/python/minesweeper.jpg",
+        "resolution": "800x600"
     }
 ]
