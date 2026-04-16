@@ -9,6 +9,7 @@ and "how to handle the web request".
 """
 
 import httpx
+from fastapi import Response
 
 GAME_RUNNER_URL = "http://game-runner:9000"
 
@@ -22,6 +23,19 @@ async def get_catalog() -> list[dict]:
         resp = await client.get(f"{GAME_RUNNER_URL}/catalog")
         resp.raise_for_status()
         return resp.json()
+
+async def get_cover(game_id: str) -> Response:
+    """
+    @brief Fetch a game's cover image from game-runner.
+    @param game_id The game that its cover image requested.
+    @return This returns binary image bytes with Response, not parsed JSON.
+    @throws httpx.HTTPStatusError if game-runner returns an error status.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"{GAME_RUNNER_URL}/covers/{game_id}")
+        resp.raise_for_status()
+        content_type = resp.headers.get("content-type", "image/svg+xml")
+        return Response(content=resp.content, media_type=content_type)
 
 async def create_session(game_id: str, user_id: str) -> dict:
     """

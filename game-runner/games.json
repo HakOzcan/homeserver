@@ -5,7 +5,7 @@
         "type": "python",
         "executable": "games/python/snake.py",
         "description": "Classic snake game - eat, grow and stay away from walls and your tail!",
-        "cover": "games/python/snake.jpg",
+        "cover": "games/python/snake-cover.svg",
         "resolution": "800x600"
     },
     {
@@ -14,7 +14,7 @@
         "type": "python",
         "executable": "games/python/tetris.py",
         "description": "Classic falling-blocks puzzle. Arrows to move, Up to rotate, Space to hard drop.",
-        "cover": "games/python/tetris.jpg",
+        "cover": "games/python/tetris-cover.svg",
         "resolution": "800x600"
     },
     {
@@ -23,7 +23,7 @@
         "type": "python",
         "executable": "games/python/minesweeper.py",
         "description": "Classic mine sweeper. Left click to reveal, right click to flag.",
-        "cover": "games/python/minesweeper.jpg",
+        "cover": "games/python/minesweeper-cover.svg",
         "resolution": "800x600"
     }
 ]

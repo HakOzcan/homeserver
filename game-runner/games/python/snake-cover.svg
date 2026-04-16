@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" shape-rendering="crispEdges">
+  <!-- Background -->
+  <rect width="800" height="450" fill="#0d2818"/>
+
+  <!-- Grid pattern -->
+  <g fill="#123322" opacity="0.5">
+    <g id="gridrow">
+      <rect x="0" y="0" width="25" height="25"/>
+      <rect x="50" y="0" width="25" height="25"/>
+      <rect x="100" y="0" width="25" height="25"/>
+      <rect x="150" y="0" width="25" height="25"/>
+      <rect x="200" y="0" width="25" height="25"/>
+      <rect x="250" y="0" width="25" height="25"/>
+      <rect x="300" y="0" width="25" height="25"/>
+      <rect x="350" y="0" width="25" height="25"/>
+      <rect x="400" y="0" width="25" height="25"/>
+      <rect x="450" y="0" width="25" height="25"/>
+      <rect x="500" y="0" width="25" height="25"/>
+      <rect x="550" y="0" width="25" height="25"/>
+      <rect x="600" y="0" width="25" height="25"/>
+      <rect x="650" y="0" width="25" height="25"/>
+      <rect x="700" y="0" width="25" height="25"/>
+      <rect x="750" y="0" width="25" height="25"/>
+    </g>
+    <use href="#gridrow" y="50"/>
+    <use href="#gridrow" y="100"/>
+    <use href="#gridrow" y="150"/>
+    <use href="#gridrow" y="200"/>
+    <use href="#gridrow" y="250"/>
+    <use href="#gridrow" y="300"/>
+    <use href="#gridrow" y="350"/>
+    <use href="#gridrow" y="400"/>
+  </g>
+  <g fill="#123322" opacity="0.5">
+    <rect x="25" y="25" width="25" height="25"/>
+    <rect x="75" y="25" width="25" height="25"/>
+    <rect x="125" y="25" width="25" height="25"/>
+    <rect x="175" y="25" width="25" height="25"/>
+    <rect x="225" y="25" width="25" height="25"/>
+    <rect x="275" y="25" width="25" height="25"/>
+    <rect x="325" y="25" width="25" height="25"/>
+    <rect x="375" y="25" width="25" height="25"/>
+    <rect x="425" y="25" width="25" height="25"/>
+    <rect x="475" y="25" width="25" height="25"/>
+    <rect x="525" y="25" width="25" height="25"/>
+    <rect x="575" y="25" width="25" height="25"/>
+    <rect x="625" y="25" width="25" height="25"/>
+    <rect x="675" y="25" width="25" height="25"/>
+    <rect x="725" y="25" width="25" height="25"/>
+    <rect x="775" y="25" width="25" height="25"/>
+  </g>
+
+  <!-- Snake body segments (curves through the canvas) -->
+  <!-- Tail -->
+  <rect x="100" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="100" y="275" width="25" height="5" fill="#86efac"/>
+  <rect x="125" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="125" y="275" width="25" height="5" fill="#86efac"/>
+  <rect x="150" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="150" y="275" width="25" height="5" fill="#86efac"/>
+  <rect x="175" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="175" y="275" width="25" height="5" fill="#86efac"/>
+  <rect x="200" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="200" y="275" width="25" height="5" fill="#86efac"/>
+
+  <!-- Curve up -->
+  <rect x="225" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="225" y="275" width="5" height="25" fill="#86efac"/>
+  <rect x="225" y="250" width="25" height="25" fill="#4ade80"/>
+  <rect x="225" y="250" width="5" height="25" fill="#86efac"/>
+  <rect x="225" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="225" y="225" width="5" height="25" fill="#86efac"/>
+
+  <!-- Right -->
+  <rect x="250" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="250" y="225" width="25" height="5" fill="#86efac"/>
+  <rect x="275" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="275" y="225" width="25" height="5" fill="#86efac"/>
+  <rect x="300" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="300" y="225" width="25" height="5" fill="#86efac"/>
+  <rect x="325" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="325" y="225" width="25" height="5" fill="#86efac"/>
+  <rect x="350" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="350" y="225" width="25" height="5" fill="#86efac"/>
+  <rect x="375" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="375" y="225" width="25" height="5" fill="#86efac"/>
+
+  <!-- Down -->
+  <rect x="400" y="225" width="25" height="25" fill="#4ade80"/>
+  <rect x="400" y="225" width="5" height="25" fill="#86efac"/>
+  <rect x="400" y="250" width="25" height="25" fill="#4ade80"/>
+  <rect x="400" y="250" width="5" height="25" fill="#86efac"/>
+  <rect x="400" y="275" width="25" height="25" fill="#4ade80"/>
+  <rect x="400" y="275" width="5" height="25" fill="#86efac"/>
+  <rect x="400" y="300" width="25" height="25" fill="#4ade80"/>
+  <rect x="400" y="300" width="5" height="25" fill="#86efac"/>
+
+  <!-- Right long -->
+  <rect x="425" y="300" width="25" height="25" fill="#4ade80"/>
+  <rect x="425" y="300" width="25" height="5" fill="#86efac"/>
+  <rect x="450" y="300" width="25" height="25" fill="#4ade80"/>
+  <rect x="450" y="300" width="25" height="5" fill="#86efac"/>
+  <rect x="475" y="300" width="25" height="25" fill="#4ade80"/>
+  <rect x="475" y="300" width="25" height="5" fill="#86efac"/>
+  <rect x="500" y="300" width="25" height="25" fill="#22c55e"/>
+  <rect x="500" y="300" width="25" height="5" fill="#4ade80"/>
+  <rect x="525" y="300" width="25" height="25" fill="#22c55e"/>
+  <rect x="525" y="300" width="25" height="5" fill="#4ade80"/>
+
+  <!-- Up -->
+  <rect x="550" y="300" width="25" height="25" fill="#22c55e"/>
+  <rect x="550" y="300" width="5" height="25" fill="#4ade80"/>
+  <rect x="550" y="275" width="25" height="25" fill="#22c55e"/>
+  <rect x="550" y="275" width="5" height="25" fill="#4ade80"/>
+  <rect x="550" y="250" width="25" height="25" fill="#22c55e"/>
+  <rect x="550" y="250" width="5" height="25" fill="#4ade80"/>
+  <rect x="550" y="225" width="25" height="25" fill="#22c55e"/>
+  <rect x="550" y="225" width="5" height="25" fill="#4ade80"/>
+
+  <!-- Right to head -->
+  <rect x="575" y="225" width="25" height="25" fill="#22c55e"/>
+  <rect x="575" y="225" width="25" height="5" fill="#4ade80"/>
+  <rect x="600" y="225" width="25" height="25" fill="#22c55e"/>
+  <rect x="600" y="225" width="25" height="5" fill="#4ade80"/>
+
+  <!-- Head -->
+  <rect x="625" y="225" width="25" height="25" fill="#16a34a"/>
+  <rect x="625" y="225" width="25" height="5" fill="#22c55e"/>
+  <!-- Eyes -->
+  <rect x="640" y="230" width="7" height="7" fill="#ffffff"/>
+  <rect x="643" y="233" width="4" height="4" fill="#000000"/>
+
+  <!-- Apple -->
+  <rect x="700" y="175" width="25" height="25" fill="#ef4444"/>
+  <rect x="700" y="175" width="25" height="5" fill="#f87171"/>
+  <rect x="705" y="170" width="5" height="5" fill="#15803d"/>
+  <rect x="710" y="165" width="5" height="5" fill="#22c55e"/>
+
+  <!-- Title -->
+  <g font-family="'Courier New', monospace" font-weight="bold">
+    <text x="50" y="110" font-size="72" fill="#000000" opacity="0.4">SNAKE</text>
+    <text x="46" y="106" font-size="72" fill="#4ade80">SNAKE</text>
+  </g>
+  <text x="52" y="140" font-family="'Courier New', monospace" font-size="18" fill="#86efac" letter-spacing="4">CLASSIC ARCADE</text>
+</svg>

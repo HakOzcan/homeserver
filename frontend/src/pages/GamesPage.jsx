@@ -8,6 +8,7 @@ export default function GamesPage() {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [coverUrls, setCoverUrls] = useState({});
 
   useEffect(() => {
     api
@@ -16,6 +17,27 @@ export default function GamesPage() {
       .catch((err) => setError("Failed to load game catalog"))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (games.length === 0) return;
+
+    const urls = {};
+    const promises = games.map((g) =>
+      api
+        .get(`/gaming/covers/${g.id}`, { responseType: "blob" })
+        .then((res) => {
+          const url = URL.createObjectURL(res.data);
+          urls[g.id] = url;
+          setCoverUrls((prev) => ({ ...prev, [g.id]: url }));
+        })
+        .catch(() => {
+          // Cover failed to load - left undefined so placeholder shows
+        })
+    );
+    return () => {
+      Object.values(urls).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [games]);
 
   return (
     <div className="gamesPage">
@@ -38,9 +60,17 @@ export default function GamesPage() {
         {games.map((g) => (
           <div key={g.id} className="gameCard">
             <div className="gameCoverWrap">
-              <div className="gameCoverPlaceholder">
-                <span>{g.name[0]}</span>
-              </div>
+              {coverUrls[g.id] ? (
+                <img
+                  src={coverUrls[g.id]}
+                  alt={g.name}
+                  className="gameCover"
+                  />
+              ) : (
+                <div className="gameCoverPlaceholder">
+                  <span>{g.name[0]}</span>
+                </div>
+              )}
             </div>
 
             <div className="gameCardBody">

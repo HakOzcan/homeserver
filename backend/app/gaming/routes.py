@@ -29,6 +29,20 @@ async def get_catalog(user=Depends(require_active_user)):
     """        
     return await service.get_catalog()
 
+@router.get("/covers/{game_id}")
+async def get_cover(game_id: str, user=Depends(require_active_user)):
+    """
+    @brief Get the cover image of a specific game.
+    @param game_id The id specific to the game cover image belongs to.
+    @return Cover image in binary format.
+    """
+    try:
+        return await service.get_cover(game_id)
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail="Cover image not found")
+    except Exception:
+        raise HTTPException(status_code=503, detail="Game-runner unavailable")
+
 @router.post("/sessions")
 async def create_session(data: SessionCreate, user=Depends(require_active_user)):
     """

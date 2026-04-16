@@ -12,7 +12,9 @@ import logging
 ## Configure logging before importing app modules so their loggers inherit this config
 logging.basicConfig(level=logging.INFO)
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from pathlib import Path
 from app.registry import registry
 from app.session import session_manager
 from app.ws import router as ws_router
@@ -45,6 +47,21 @@ async def get_catalog():
     Called by the backend to populate the games page in the frontend.
     """
     return registry.get_all_games()
+
+@app.get("/covers/{game_id}")
+async def get_cover(game_id: str):
+    """
+    @brief Provide cover image for the specific game id.
+    @param game_id Specific game id to fetch its cover image.
+    @return Stream the SVG bytes back to the caller.
+    """
+    game = registry.get_game(game_id)
+    if game is None:
+        raise HTTPException(status_code=404, detail="Game not found")
+    cover_path = Path(game["cover"])
+    if not cover_path.exists():
+        raise HTTPException(status_code=404, detail="Cover image not found")
+    return FileResponse(cover_path, media_type="image/svg+xml")
 
 @app.post("/sessions")
 async def create_sessions(data: dict):
