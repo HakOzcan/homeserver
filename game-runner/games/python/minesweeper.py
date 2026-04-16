@@ -56,7 +56,7 @@ class Minesweeper:
         self.cell = min(width // GRID_COLS, (height - 50) // GRID_ROWS)
         self.board_w = self.cell * GRID_COLS
         self.board_h = self.cell * GRID_ROWS
-        self.origin_x = (widht - self.board_w) // 2
+        self.origin_x = (width - self.board_w) // 2
         self.origin_y = (height - self.board_h + 30) // 2
         self.reset()
 
