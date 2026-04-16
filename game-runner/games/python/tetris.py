@@ -98,7 +98,7 @@ class Tetris:
         for r, c in cells:
             if c < 0 or c >= COLS or r >= ROWS:
                 return True
-            if r >= 0 or self.grid[r][c] is not None:
+            if r >= 0 and self.grid[r][c] is not None:
                 return True
         return False
     
@@ -112,9 +112,9 @@ class Tetris:
         cleared = ROWS - len(new_grid)
         for _ in range(cleared):
             new_grid.insert(0, [None] * COLS)
-            self.grid = new_grid
-            self.score += [0, 100, 300, 500, 800][cleared] if cleared <= 4 else 800
-            self._spawn()
+        self.grid = new_grid
+        self.score += [0, 100, 300, 500, 800][cleared] if cleared <= 4 else 800
+        self._spawn()
     
     def move(self, dr, dc):
         """
@@ -129,7 +129,7 @@ class Tetris:
     
     def rotate_piece(self):
         """@brief Rotate the active piece CW if the result fits."""
-        if self.shape_id == "0":
+        if self.shape_id == "O":
             return
         base_r = min(r for r, _ in self.piece)
         base_c = min(c for _, c in self.piece)
@@ -168,10 +168,10 @@ class Tetris:
                 sid = self.grid[r][c]
                 if sid is not None:
                     self._draw_cell(surf, r, c, COLORS[sid])
-            if not self.game_over:
-                for r, c in self.piece:
-                    if r >= 0:
-                        self._draw_cell(surf, r, c, COLORS[self.shape_id])
+        if not self.game_over:
+            for r, c in self.piece:
+                if r >= 0:
+                    self._draw_cell(surf, r, c, COLORS[self.shape_id])
     
     def _draw_cell(self, surf, r, c, color):
         """@brief Paint a single grid cell at (row, col)."""
