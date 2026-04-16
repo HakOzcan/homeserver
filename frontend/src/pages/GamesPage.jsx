@@ -21,10 +21,15 @@ export default function GamesPage() {
   useEffect(() => {
     if (games.length === 0) return;
 
+    const controller = new AbortController();
     const urls = {};
-    const promises = games.map((g) =>
+
+    games.forEach((g) =>
       api
-        .get(`/gaming/covers/${g.id}`, { responseType: "blob" })
+        .get(`/gaming/covers/${g.id}`, {
+          responseType: "blob",
+          signal: controller.signal,
+        })
         .then((res) => {
           const url = URL.createObjectURL(res.data);
           urls[g.id] = url;
@@ -35,6 +40,7 @@ export default function GamesPage() {
         })
     );
     return () => {
+      controller.abort();
       Object.values(urls).forEach((url) => URL.revokeObjectURL(url));
     };
   }, [games]);
