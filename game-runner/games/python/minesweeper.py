@@ -201,7 +201,7 @@ class Minesweeper:
                 y = self.origin_y + r * self.cell
                 rect = pygame.Rect(x, y, self.cell - 1, self.cell - 1)
 
-                if self .revealed[r][c]:
+                if self.revealed[r][c]:
                     if self.mines[r][c]:
                         pygame.draw.rect(surf, CELL_MINE, rect)
                     else:
