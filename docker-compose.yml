@@ -113,6 +113,25 @@ services:
     logging:
       driver: "json-file"
       options: { max-size: "10m", max-file: "3" }
+  
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns
+    container_name: homeserver-ddns
+    restart: unless-stopped
+    environment:
+      - API_KEY=${CF_API_TOKEN}
+      - ZONE=${CF_CONE}
+      - SUBDOMAIN=
+      - PROXIED=false
+      - RRTYPE=A
+      - DELETE_ON_STOP=false
+      - DNS_SERVER=1.1.1.1
+      - CRON=*/5 * * * *
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   db_data:
