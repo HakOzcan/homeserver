@@ -120,7 +120,7 @@ services:
     restart: unless-stopped
     environment:
       - API_KEY=${CF_API_TOKEN}
-      - ZONE=${CF_CONE}
+      - ZONE=${CF_ZONE}
       - SUBDOMAIN=
       - PROXIED=false
       - RRTYPE=A
