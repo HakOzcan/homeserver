@@ -1,41 +1,137 @@
-import React, {useEffect,useRef} from "react";
-import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import Hls from "hls.js";
 
 const VideoPlayer = ({ video, onBack }) => {
   const videoRef = useRef(null);
+  const hlsRef = useRef(null);
+  const [levels, setLevels] = useState([]);
+  const [currentLevel, setCurrentLevel] = useState(-1);
+  const [audioTracks, setAudioTracks] = useState([]);
+  const [currentAudioTrack, setCurrentAudioTrack] = useState(-1);
+  const [subtitleTracks, setSubtitleTracks] = useState([]);
+  const [currentSubtitleTrack, setCurrentSubtitleTrack] = useState(-1);
 
   useEffect(() => {
-    const getSignedURL = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await axios.get(
-                `https://api.hakserver.cc/api/media/play/${video}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-            videoRef.current.src = res.data.url;
-        } catch (err) {
-            console.error("Error loading video: ", err);
-        }
-    };
-    getSignedURL();
+    const videoEl = videoRef.current;
+    const token = localStorage.getItem("token");
+    const src = `https://api.hakserver.cc/api/media/hls/${video}/master.m3u8`;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        xhrSetup: (xhr) => {
+          xhr.setRequesHeader("Authorization", `Bearer ${token}`);
+        },
+      });
+
+      hls.loadSource(src);
+      hls.attachMedia(videoEl);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setLevels(hls.levels);
+        setCurrentLevel(hls.currentLevel);
+        setAudioTracks(hls.audioTracks);
+        setCurrentAudioTrack(hls.audioTrack);
+        setSubtitleTracks(hls.subtitleTracks);
+        videoEl.play();
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
+        setCurrentLevel(data.level);
+      });
+
+      hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (_, data) => {
+        setCurrentAudioTrack(data.id);
+      });
+
+      hls.on(Hls.Events.SUBTITLE_TRACK_SWITCH, (_, data) => {
+        setCurrentSubtitleTrack(data.id);
+      });
+
+      hlsRef.current = hls;
+
+      return () => {
+        hls.destroy();
+      };
+    } else if (videoEl.canPlayType("application/vnd.apple.mpegurl")) {
+      videoEl.src = src;
+      videoEl.addEventListener("loadedmetadata", () => videoEl.play());
+    }
   }, [video]);
+
+  const onQualityChange = (e) => {
+    const level = parseInt(e.target.value);
+    if (hlsRef.current) {
+      hlsRef.current.currentLevel = level;
+      setCurrentLevel(level);
+    }
+  };
+
+  const onAudioChange = (e) => {
+    const track = parseInt(e.target.value);
+    if (hlsRef.current) {
+      hlsRef.current.audioTrack = track;
+    }
+  };
+
+  const onSubtitleChange = (e) => {
+    const track = parseInt(e.target.value);
+    if (hlsRef.current) {
+      hlsRef.current.subtitleTrack = track;
+      hlsRef.current.subtitleDisplay = track !== -1;
+    }
+  };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h2>{video}</h2>
-      <video
+      <video 
         ref={videoRef}
         controls
-        autoPlay
         style={{
           width: "100%",
-          maxWidth: "900px",
+          maxWidth: "1200px",
           borderRadius: "12px",
           boxShadow: "0 0 10px rgba(0,0,0,0.3)",
         }}
       />
+
+      <div style ={{ marginTop: "1rem", display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap"  }}>
+        <label>
+          Quality:
+          <select value={currentLevel} onChange={onQualityChange} style={{ marginLeft: "0.5rem" }}>
+            <option value={-1}>Auto</option>
+            {levels.map((level, i) => (
+              <option key={i} value={i}>
+                {level.height}p {level.videoRange ===  "PQ" ? "HDR" : "SDR"}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Audio:
+          <select value={currentAudioTrack} onChange={onAudioChange} style={{ marginLeft: "0.5rem" }}>
+            {audioTracks.map((track) => (
+              <option key={track.id} value={track.id}>
+                {track.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Subtitles:
+          <select value={currentSubtitleTrack} onChange={onSubtitleChange} style={{ marginLeft: "0.5rem" }}>
+            <option value={-1}>Off</option>
+            {subtitleTracks.map((track) => (
+              <option key={track.id} value={track.id}>
+                {track.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
       <br />
       <button onClick={onBack} style={{ marginTop: "1rem" }}>
         ← Back to Library
