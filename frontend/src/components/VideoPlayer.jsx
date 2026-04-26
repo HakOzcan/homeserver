@@ -19,7 +19,7 @@ const VideoPlayer = ({ video, onBack }) => {
     if (Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr) => {
-          xhr.setRequesHeader("Authorization", `Bearer ${token}`);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         },
       });
 

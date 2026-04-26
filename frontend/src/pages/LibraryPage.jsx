@@ -13,7 +13,7 @@ export default function LibraryPage() {
       setMsg("");
       try {
         const res = await api.get("/media/movies");
-        setVideos(res.data.videos || []);
+        setVideos(res.data.movies || []);
       } catch (err) {
         setMsg("Failed to load videos: " + (err.response?.data?.detail || "Unknown error"));
       }

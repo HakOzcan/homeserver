@@ -18,7 +18,7 @@ CHUNK_SIZE = 1024 * 1024
 
 ## @brief Maps file extensions to their MIME types for HLS content.
 CONTENT_TYPES = {
-    ".m3u8": "application/vdn.apple.mpegurl",
+    ".m3u8": "application/vnd.apple.mpegurl",
     ".m4s": "video/iso.segment",
     ".mp4": "video/mp4",
     ".vtt": "text/vtt",
@@ -55,7 +55,7 @@ async def serve_hls(path: str, user=Depends(get_current_user)):
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
     
-    ext = os.path.split(file_path)[1].lower()
+    ext = os.path.splitext(file_path)[1].lower()
     content_type = CONTENT_TYPES.get(ext, "application/octet-stream")
 
     if ext in (".m4s", ".mp4"):
