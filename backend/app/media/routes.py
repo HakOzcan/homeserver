@@ -1,98 +1,69 @@
+"""
+@file routes.py
+@brief HLS media streaming endpoints for serving movies via adaptive bitrate streaming.
+"""
+
 import os
-from fastapi import APIRouter, Request, HTTPException, Depends, Query
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import FileResponse, StreamingResponse
 from app.auth.dependencies import get_current_user
-from app.core.config import settings
-from datetime import datetime, timedelta, timezone
-from jose import jwt
 
 router = APIRouter(prefix="/media", tags=["Media"])
 
-# Your mounted media path from docker-compose
-MEDIA_ROOT = "/mnt/streaming"
-CHUNK_SIZE = 1024 * 1024  # 1 MB
+## @brief Root directory for HLS movie bundles on the streaming volume.
+MOVIES_ROOT = "/mnt/streaming/movies"
 
-SIGN_EXPIRATION_MINUTES = 2  # playback link valid for 2 minutes
+## @brief Chunk size in bytes for streaming segment responses.
+CHUNK_SIZE = 1024 * 1024
 
-@router.get("/play/{path:path}")
-async def get_signed_stream_url(
-    path: str,
-    user=Depends(get_current_user)
-):
+## @brief Maps file extensions to their MIME types for HLS content.
+CONTENT_TYPES = {
+    ".m3u8": "application/vdn.apple.mpegurl",
+    ".m4s": "video/iso.segment",
+    ".mp4": "video/mp4",
+    ".vtt": "text/vtt",
+}
+
+@router.get("/movies")
+async def list_movies(user=Depends(get_current_user)):
     """
-    Returns a short-lived signed URL to stream a video file.
+    @brief List all available HLS movies.
+    @details Scans MOVIES_ROOT for directories containing a master.m3u8 playlist.
+    @param user Authenticated user from JWT token.
+    @return JSON object with a list of movie directory names.
     """
-    expire = datetime.now(timezone.utc) + timedelta(minutes=SIGN_EXPIRATION_MINUTES)
-    token_data = {"sub": user["sub"], "path": path, "exp": expire}
-    signed_token = jwt.encode(token_data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    movies = []
+    for entry in sorted(os.listdir(MOVIES_ROOT)):
+        movie_dir = os.path.join(MOVIES_ROOT, entry)
+        if os.path.isdir(movie_dir) and os.path.isfile(os.path.join(movie_dir, "master.m3u8")):
+            movies.append(entry)
+    return {"movies": movies}
 
-    signed_url = f"https://api.hakserver.cc/api/media/stream/{path}?token={signed_token}"
-    return {"url": signed_url}
-
-@router.get("/stream/{path:path}")
-async def stream_video(request: Request, path: str, token: str = Query(None)):
+@router.get("/hls/{path:path}")
+async def serve_hls(path: str, user=Depends(get_current_user)):
     """
-    Stream a video file if a valid signed token is provided.
+    @brief Serve any file from an HLS movie bundle.
+    @details Resolves the requested path under MOVIES_ROOT and streams the file
+             with the appropriate Content-Type header. Rejects path traversal attempts.
+    @param path Relative path to the file within MOVIES_ROOT (e.g. "example_movie/master.m3u8").
+    @return StreamingResponse for segments (.m4s/.mp4), FileResponse for playlists and subtitles.
     """
-    if not token:
-        raise HTTPException(status_code=401, detail="Missing token")
-
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        if payload.get("path") != path:
-            raise HTTPException(status_code=403, detail="Invalid token path")
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.JWTError:
-        raise HTTPException(status_code=403, detail="Invalid token")
-
-    file_path = os.path.join(MEDIA_ROOT, path)
+    if ".." in path:
+        raise HTTPException(status_code=403, detail="Path traversal not allowed")
+    
+    file_path = os.path.join(MOVIES_ROOT, path)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
+    
+    ext = os.path.split(file_path)[1].lower()
+    content_type = CONTENT_TYPES.get(ext, "application/octet-stream")
 
-    file_size = os.path.getsize(file_path)
-    range_header = request.headers.get("range")
-    start = 0
-    end = file_size - 1
-
-    if range_header:
-        bytes_range = range_header.replace("bytes=", "").split("-")
-        start = int(bytes_range[0]) if bytes_range[0] else 0
-        if bytes_range[1]:
-            end = int(bytes_range[1])
-
-    def iterfile(start_pos, end_pos):
-        with open(file_path, "rb") as f:
-            f.seek(start_pos)
-            remaining = end_pos - start_pos + 1
-            while remaining > 0:
-                chunk = f.read(min(CHUNK_SIZE, remaining))
-                if not chunk:
-                    break
-                remaining -= len(chunk)
-                yield chunk
-
-    headers = {
-        "Content-Type": "video/mp4",
-        "Accept-Ranges": "bytes",
-        "Content-Range": f"bytes {start}-{end}/{file_size}",
-        "Content-Length": str(end - start + 1),
-    }
-
-    return StreamingResponse(iterfile(start, end), status_code=206, headers=headers)
-
-
-
-@router.get("/list")
-async def list_videos(user=Depends(get_current_user)):
-    """
-    Return a simple list of video files available in MEDIA_ROOT.
-    Useful for populating frontend gallery.
-    """
-    video_files = []
-    for root, _, files in os.walk(MEDIA_ROOT):
-        for f in files:
-            if f.lower().endswith((".mp4", ".mkv", ".mov")):
-                rel_path = os.path.relpath(os.path.join(root, f), MEDIA_ROOT)
-                video_files.append(rel_path)
-    return {"videos": video_files}
+    if ext in (".m4s", ".mp4"):
+        def iterfile():
+            """@brief Generator that yields file content in chunks."""
+            with open(file_path, "rb") as f:
+                while chunk := f.read(CHUNK_SIZE):
+                    yield chunk
+        return StreamingResponse(iterfile(), media_type=content_type)
+    
+    return FileResponse(file_path, media_type=content_type)
