@@ -34,7 +34,12 @@ const VideoPlayer = ({ video, onBack }) => {
       });
 
       hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, (_, data) => {
-        console.log(data.audioTracks);
+        const supported = data.audioTracks.filter((track) => {
+          if (track.url.includes("eac3")) {
+            return MediaSource.isTypeSupported(`audio/mp4; codecs="ec-3"`);
+          }
+          return true;
+        });
         setAudioTracks(supported);
       });
 
