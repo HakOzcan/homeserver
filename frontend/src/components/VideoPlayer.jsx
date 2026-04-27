@@ -29,10 +29,16 @@ const VideoPlayer = ({ video, onBack }) => {
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setLevels(hls.levels);
         setCurrentLevel(hls.currentLevel);
-        setAudioTracks(hls.audioTracks);
         setCurrentAudioTrack(hls.audioTrack);
-        setSubtitleTracks(hls.subtitleTracks);
         videoEl.play();
+      });
+
+      hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, (_, data) => {
+        setAudioTracks(data.audioTracks);
+      });
+
+      hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, (_, data) => {
+        setSubtitleTracks(data.subtitleTracks);
       });
 
       hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
