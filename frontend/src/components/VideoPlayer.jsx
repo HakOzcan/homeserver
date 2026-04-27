@@ -34,7 +34,8 @@ const VideoPlayer = ({ video, onBack }) => {
       });
 
       hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, (_, data) => {
-        setAudioTracks(data.audioTracks);
+        const supported = data.audioTracks.filter((track) => MediaSource.isTypeSupported(`audio/mp4; codecs="${track.audioCodec}"`));
+        setAudioTracks(supported);
       });
 
       hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, (_, data) => {
