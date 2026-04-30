@@ -3,7 +3,8 @@ import Hls from "hls.js";
 
 function detectVideoCapabilities() {
   const h264 = MediaSource.isTypeSupported('video/mp4; codecs="avc1.640033"');
-  const hevc = MediaSource.isTypeSupported('video/mp4; codecs="hvc1.2.4.L150.B0"');
+  const nativeHls = document.createElement("video").canPlayType("application/vnd.apple.mpegurl");
+  const hevc = !nativeHls && MediaSource.isTypeSupported('video/mp4; codecs="hvc1.2.4.L150.B0"');
   return { h264, hevc, hdr: hevc };
 }
 
