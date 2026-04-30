@@ -4,8 +4,7 @@ import Hls from "hls.js";
 function detectVideoCapabilities() {
   const h264 = MediaSource.isTypeSupported('video/mp4; codecs="avc1.640033"');
   const hevc = MediaSource.isTypeSupported('video/mp4; codecs="hvc1.2.4.L150.B0"');
-  const hdrDisplay = window.matchMedia?.("(dynamic-range: high)").matches;
-  return { h264, hevc, hdr: hevc && hdrDisplay };
+  return { h264, hevc, hdr: hevc };
 }
 
 const VideoPlayer = ({ video, onBack }) => {
