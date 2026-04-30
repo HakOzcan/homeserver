@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 
+function detectVideoCapabilities() {
+  const h264 = MediaSource.isTypeSupported('video/mp4; codecs="avc1.640033"');
+  const hevc = MediaSource.isTypeSupported('video/mp4; codecs="hvc1.2.4.L150.B0"');
+  const hdrDisplay = window.matchMedia?.("(dynamic-range: high)").matches;
+  return { h264, hevc, hdr: hevc && hdrDisplay };
+}
+
 const VideoPlayer = ({ video, onBack }) => {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
@@ -10,6 +17,7 @@ const VideoPlayer = ({ video, onBack }) => {
   const [currentAudioTrack, setCurrentAudioTrack] = useState(-1);
   const [subtitleTracks, setSubtitleTracks] = useState([]);
   const [currentSubtitleTrack, setCurrentSubtitleTrack] = useState(-1);
+  const [supportedLevelIndices, setSupportedLevelIndices] = useState([]);
 
   useEffect(() => {
     const videoEl = videoRef.current;
@@ -27,7 +35,30 @@ const VideoPlayer = ({ video, onBack }) => {
       hls.attachMedia(videoEl);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        setLevels(hls.levels);
+        const caps = detectVideoCapabilities();
+        const allLevels = hls.levels;
+
+        const supported = [];
+        allLevels.forEach((level, i) => {
+          const isHevc = level.codecs?.toLowerCase().includes("hvc1");
+          const isHdr = level.videoRange === "PQ";
+
+          if (isHevc && isHdr) {
+            if (caps.hdr) supported.push(i);
+          } else if (isHevc) {
+            if (caps.hevc) supported.push(i);
+          } else {
+            supported.push(i);
+          }
+        });
+
+        setSupportedLevelIndices(supported);
+        setLevels(allLevels);
+
+        if (!supported.includes(hls.currentLevel) && supported.length > 0) {
+          hls.currentLevel = supported[0];
+        }
+
         setCurrentLevel(hls.currentLevel);
         setCurrentAudioTrack(hls.audioTrack);
         videoEl.play();
@@ -41,6 +72,11 @@ const VideoPlayer = ({ video, onBack }) => {
           return true;
         });
         setAudioTracks(supported);
+
+        const stereo = supported.find((t) => t.name.includes("Stereo"));
+        if (stereo) {
+          hls.audioTrack = stereo.id;
+        }
       });
 
       hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, (_, data) => {
@@ -112,11 +148,14 @@ const VideoPlayer = ({ video, onBack }) => {
           Quality:
           <select value={currentLevel} onChange={onQualityChange} style={{ marginLeft: "0.5rem" }}>
             <option value={-1}>Auto</option>
-            {levels.map((level, i) => (
-              <option key={i} value={i}>
-                {level.height}p {level.videoRange ===  "PQ" ? "HDR" : "SDR"}
-              </option>
-            ))}
+            {levels.map((level, i) => {
+              if (!supportedLevelIndices.includes(i)) return null;
+              return (
+                <option key={i} value={i}>
+                  {level.height}p {level.videoRange === "PQ" ? "HDR" : "SDR"}
+                </option>
+              );
+            })}
           </select>
         </label>
 
