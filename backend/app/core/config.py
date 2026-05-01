@@ -27,4 +27,9 @@ class Settings:
     API_BASE_URL = os.getenv("API_BASE_URL", "https://api.hakserver.cc") 
     FRONTEND_URL = os.getenv("FRONTEND_URL")
 
+    # TMDB
+    TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+    TMDB_BASE_URL = "https://api.themoviedb.org/3"
+    TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p"
+
 settings = Settings()

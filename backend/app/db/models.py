@@ -39,6 +39,9 @@ class Content(Base):
     ## @brief TMDB's unique identifier for this movie/show.
     tmdb_id = Column(Integer, unique=True, index=True, nullable=False)
     
+    ## @brief Content type from TMDB: "movie" or "tv"
+    content_type = Column(String, nullable=False)
+
     title = Column(String, nullable=False)
     
     ## @brief Full plot summary from TMDB.
