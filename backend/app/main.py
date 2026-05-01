@@ -2,15 +2,11 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.auth.routes import router as auth_router
-from app.db.database import engine
-from app.db.models import Base
 from app.auth.dependencies import get_current_user
 from app.media.routes import router as media_router
 from app.admin.routes import router as admin_router
 from app.gaming.routes import router as gaming_router
 
-# Initialize DB
-Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
 app = FastAPI(
