@@ -20,7 +20,7 @@ class User(Base):
     is_admin = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=False)
     email_verified = Column(Boolean, nullable=False, default=False)
-    last_verification_email_sent_at = Column(DateTime, nullable=True)
+    last_verification_email_sent_at = Column(DateTime(timezone=True), nullable=True)
 
     ## @brief All watch progress entries belonging to this user.
     watch_progress = relationship("WatchProgress", back_populates="user")
