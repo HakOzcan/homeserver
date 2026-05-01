@@ -21,7 +21,7 @@ from alembic import context
          because Alembic runs from the `backend/` directory but doesn't
          automatically know about our package structure.
 """
-sys.path.insert(0, os.path.join(os.path.dirname(___file___), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.core.config import settings
 from app.db.database import Base
