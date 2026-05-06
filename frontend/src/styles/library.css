@@ -208,3 +208,35 @@
   font-size: 0.75rem;
   color: var(--muted);
 }
+
+/* Horizontal scroll rows */
+
+.lib__row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lib__row > * {
+  scroll-snap-align: start;
+}
+
+.lib__row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.lib__row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lib__row::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.lib__row::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

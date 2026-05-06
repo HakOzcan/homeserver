@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api.jsx";
+import ContentCard from "../components/ContentCard.jsx";
 import "../styles/library.css";
 
 export default function LibraryPage() {
@@ -144,23 +145,54 @@ export default function LibraryPage() {
 
           {library.continue_watching.length > 0 && (
             <section className="lib__section">
-              <h2 className="lib__section-title">
-                Continue Watching ({library.continue_watching.length})
-              </h2>
+              <h2 className="lib__section-title">Continue Watching</h2>
+              <div className="lib__row">
+                {library.continue_watching.map(item => (
+                  <ContentCard
+                    key={item.tmdb_id}
+                    item={item}
+                    posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
+                    progress={item.progress_percent}
+                    onClick={item.content_type === "movie"
+                      ? () => nav(`/player/movies/${item.tmdb_id}`)
+                      : undefined}
+                  />
+                ))}
+              </div>
             </section>
           )}
 
           <section className="lib__section">
-            <h2 className="lib__section-title">
-              Recently Added ({library.recently_added.length})
-            </h2>
+            <h2 className="lib__section-title">Recently Added</h2>
+            <div className="lib__row">
+              {library.recently_added.map(item => (
+                <ContentCard
+                  key={item.tmdb_id}
+                  item={item}
+                  posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
+                  onClick={item.content_type === "movie"
+                    ? () => nav(`/player/movies/${item.tmdb_id}`)
+                    : undefined}
+                />
+              ))}
+            </div>
           </section>
 
           {Object.entries(library.genre_rows).map(([genre, items]) => (
             <section key={genre} className="lib__section">
-              <h2 className="lib__section-title">
-                {genre} ({items.length})
-              </h2>
+              <h2 className="lib__section-title">{genre}</h2>
+              <div className="lib__row">
+                {items.map(item => (
+                  <ContentCard
+                    key={item.tmdb_id}
+                    item={item}
+                    posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
+                    onClick={item.content_type === "movie"
+                      ? () => nav(`/player/movies/${item.tmdb_id}`)
+                      : undefined}
+                  />
+                ))}
+              </div>
             </section>
           ))}
         </>
