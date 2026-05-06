@@ -101,11 +101,46 @@ export default function LibraryPage() {
 
       {library && (
         <>
-          <section className="lib__section">
-            <h2 className="lib__section-title">
-              Hero: {library.hero?.title || "None"}
-            </h2>
-          </section>
+          {library.hero && (
+            <section className="hero">
+              {imageUrls[`${library.hero.content_type}/${library.hero.tmdb_id}/backdrop`] && (
+                <img
+                  className="hero__backdrop"
+                  src={imageUrls[`${library.hero.content_type}/${library.hero.tmdb_id}/backdrop`]}
+                  alt=""
+                />
+              )}
+              <div className="hero__gradient" />
+              <div className="hero__content">
+                <h1 className="hero__title">{library.hero.title}</h1>
+                <div className="hero__meta">
+                  {library.hero.rating && (
+                    <span className="hero__rating">★ {library.hero.rating.toFixed(1)}</span>
+                  )}
+                  {library.hero.release_year && <span>{library.hero.release_year}</span>}
+                  {library.hero.runtime && <span>{library.hero.runtime} min</span>}
+                </div>
+                {library.hero.genres && (
+                  <div className="hero__genres">
+                    {library.hero.genres.map(g => g.name).join(" · ")}
+                  </div>
+                )}
+                <p className="hero__overview">{library.hero.overview}</p>
+                <div className="hero__actions">
+                  {library.hero.content_type === "movie" ? (
+                    <button
+                      className="btn btn--play"
+                      onClick={() => nav(`/player/movies/${library.hero.tmdb_id}`)}
+                    >
+                      ▶ Play
+                    </button>
+                  ) : (
+                    <button className="btn btn--play" disabled>Coming Soon</button>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
 
           {library.continue_watching.length > 0 && (
             <section className="lib__section">
