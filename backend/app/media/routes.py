@@ -196,16 +196,12 @@ async def get_progress(
         updated_at=progress.updated_at,
     )
 
-@router.post("/scan")
-async def scan_content(user=Depends(require_admin), db: Session = Depends(get_db)):
+async def _scan_library(db: Session) -> dict:
     """
-    @brief Admin endpoint: scan streaming folders for new content and populate DB.
-    @details Walks /mnt/streaming/movies/ and /mnt/streaming/tv/ looking for
-             numberic folder names (tmdb_ids) that have a master.m3u8.
-             For each, checks cache for metadata then falls back to TMDB API.
-    @param user Admin user (required).
+    @brief Walk streaming folders, find new content, and populate the database.
+    @details Shared logic used by both the admin endpoint and the periodic background task.
     @param db Database session.
-    @return Summary of added, skipped, and errored items.
+    @return Summary dict with added, skipped, and errors counts.
     """
     added = 0
     skipped = 0
@@ -218,26 +214,22 @@ async def scan_content(user=Depends(require_admin), db: Session = Depends(get_db
         for folder in sorted(os.listdir(root)):
             folder_path = os.path.join(root, folder)
 
-            ## Skip if not a directory or has no master.m3u8
             if not os.path.isdir(folder_path):
                 continue
             if not os.path.isfile(os.path.join(folder_path, "master.m3u8")):
                 continue
 
-            ## Only process numeric foler names (tmdb_ids)
             if not folder.isdigit():
                 errors.append(f"Non-numeric folder skipped: {content_type}/{folder}")
                 continue
 
             tmdb_id = int(folder)
 
-            ## Skip if already in database
             existing = db.query(Content).filter(Content.tmdb_id == tmdb_id).first()
             if existing:
                 skipped += 1
                 continue
 
-            ## Store content (cache-first, then TMDB fallback)
             try:
                 result = await store_content(tmdb_id, content_type, folder, db)
                 if result:
@@ -246,8 +238,15 @@ async def scan_content(user=Depends(require_admin), db: Session = Depends(get_db
                     errors.append(f"Failed to fetch metadata: {content_type}/{folder}")
             except Exception as e:
                 errors.append(f"Error processing {content_type}/{folder}: {str(e)}")
-    
+
     return {"added": added, "skipped": skipped, "errors": errors}
+
+@router.post("/scan")
+async def scan_content(user=Depends(require_admin), db: Session = Depends(get_db)):
+    """
+    @brief Admin endpoint to manually trigger a library scan.
+    """   
+    return await _scan_library(db)
 
 @router.get("/image/{content_type}/{tmdb_id}/{filename}")
 async def serve_image(content_type: str, tmdb_id: str, filename: str, user=Depends(get_current_user)):

@@ -1,3 +1,8 @@
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+from app.db.database import SessionLocal
+from app.media.routes import _scan_library
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -9,12 +14,40 @@ from app.gaming.routes import router as gaming_router
 
 
 # Create FastAPI app
+logger = logging.getLogger("uvicorn")
+
+async def periodic_scan(interval_seconds: int = 3600):
+    """
+    @brief Background task that scans for new content on a fixed interval.
+    @param interval_seconds Time between scans (default: 1 hour).
+    """
+    while True:
+        await asyncio.sleep(interval_seconds)
+        try:
+            db = SessionLocal()
+            try:
+                result = await _scan_library(db)
+                if result["added"] > 0:
+                    logger.info(f"Periodic scan: added {result['added']}, skipped {result['skipped']}")
+            finally:
+                db.close()
+        except Exception as e:
+            logger.error(f"Periodic scan failed: {e}")
+
+@asynccontextmanager
+async def lifespan(app):
+    task = asyncio.create_task(periodic_scan())
+    logger.info("Periodic library scan started (every 1 hour)")
+    yield
+    task.cancel()
+
 app = FastAPI(
-    title=settings.PROJECT_NAME, 
+    title=settings.PROJECT_NAME,
     root_path=settings.ROOT_PATH,
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
+    lifespan=lifespan,
 )
 
 origins = [
