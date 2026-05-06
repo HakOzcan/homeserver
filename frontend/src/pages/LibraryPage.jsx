@@ -97,7 +97,18 @@ export default function LibraryPage() {
         </button>
       </div>
 
-      {loading && <p className="lib__message">Loading...</p>}
+      {loading && (
+        <div className="lib__loading">
+          <div className="lib__skeleton-hero" />
+          <div className="lib__skeleton-row" />
+          <div className="lib__skeleton-row" />
+        </div>
+      )}
+
+      {library && !library.hero && library.recently_added.length === 0 && (
+        <p className="lib__message">Your library is empty. Ask an admin to add new content</p>
+      )}
+
       {error && <p className="lib__message msg--error">{error}</p>}
 
       {library && (

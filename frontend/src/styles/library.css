@@ -240,3 +240,69 @@
 .lib__row::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
+
+/* Loading skeletons */
+
+.lib__loading {
+  padding: 0;
+}
+
+.lib__skeleton-hero {
+  height: 70vh;
+  min-height: 450px;
+  background: linear-gradient(110deg, var(--card) 30%, rgba(255, 255, 255, 0.08) 50%, var(--card) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.lib__skeleton-row {
+  height: 280px;
+  margin: 24px;
+  border-radius: 12px;
+  background: linear-gradient(110deg, var(--card) 30%, rgba(255, 255, 255, 0.08) 50%, var(--card) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .hero {
+    height: 50vh;
+    min-height: 350px;
+  }
+
+  .hero__content {
+    bottom: 32px;
+    left: 24px;
+  }
+
+  .card-content {
+    width: 130px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 40vh;
+    min-height: 280px;
+  }
+
+  .hero__content {
+    bottom: 24px;
+    left: 16px;
+  }
+
+  .lib__section {
+    padding: 0 16px;
+  }
+
+  .card-content {
+    width: 120px;
+  }
+}
