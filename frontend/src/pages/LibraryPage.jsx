@@ -8,6 +8,7 @@ export default function LibraryPage() {
   const [library, setLibrary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [imageUrls, setImageUrls] = useState({});
 
   useEffect(() => {
     const load = async () => {
@@ -22,6 +23,60 @@ export default function LibraryPage() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (!library) return;
+
+    const urls = {};
+    const controller = new AbortController();
+
+    const allItems = [];
+    const seen = new Set();
+    const addItem = (item) => {
+      if (!seen.has(item.tmdb_id)) {
+        seen.add(item.tmdb_id);
+        allItems.push(item);
+      }
+    };
+
+    if (library.hero) addItem(library.hero);
+    library.continue_watching.forEach(addItem);
+    library.recently_added.forEach(addItem);
+    Object.values(library.genre_rows).forEach(row => row.forEach(addItem));
+
+    allItems.forEach(item => {
+      const posterKey = `${item.content_type}/${item.tmdb_id}/poster`;
+      api.get(`/media/image/${item.content_type}/${item.tmdb_id}/poster.jpg`, {
+        responseType: "blob",
+        signal: controller.signal,
+      })
+        .then(res => {
+          const url = URL.createObjectURL(res.data);
+          urls[posterKey] = url;
+          setImageUrls(prev => ({ ...prev, [posterKey]: url }));
+        })
+        .catch(() => {});
+
+      if (library.hero && item.tmdb_id === library.hero.tmdb_id) {
+        const backdropKey = `${item.content_type}/${item.tmdb_id}/backdrop`;
+        api.get(`/media/image/${item.content_type}/${item.tmdb_id}/backdrop.jpg`, {
+          responseType: "blob",
+          signal: controller.signal,
+        })
+          .then(res => {
+            const url = URL.createObjectURL(res.data);
+            urls[backdropKey] = url;
+            setImageUrls(prev => ({ ...prev, [backdropKey]: url }));
+          })
+          .catch(() => {});
+      }
+    });
+
+    return () => {
+      controller.abort();
+      Object.values(urls).forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [library]);
 
   return (
     <div className="lib">
