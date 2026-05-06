@@ -221,6 +221,14 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.lib__row > *:first-child {
+  margin-left: 10px;
+}
+
+.lib__row > *:last-child {
+  margin-right: 10px;
+}
+
 .lib__row > * {
   scroll-snap-align: start;
 }
