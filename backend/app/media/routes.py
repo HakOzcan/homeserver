@@ -153,6 +153,7 @@ async def update_progress(
             duration_seconds=body.duration_seconds,
             completed=completed,
         )
+        db.add(progress)
     
     db.commit()
     return {"status": "ok"}

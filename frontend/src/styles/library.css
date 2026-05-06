@@ -1,19 +1,25 @@
-.videoList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 10px;
+.lib {
+  min-height: 100vh;
+  background: var(--bg);
 }
 
-.videoItem {
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.04);
-  cursor: pointer;
+.lib__topbar {
+  margin: 24px;
 }
 
-.videoItem:hover {
-  background: rgba(255,255,255,0.08);
+.lib__message {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+}
+
+.lib__section {
+  padding: 0 24px;
+  margin-bottom: 24px;
+}
+
+.lib__section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
 }
