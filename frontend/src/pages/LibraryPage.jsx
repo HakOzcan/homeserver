@@ -174,9 +174,7 @@ export default function LibraryPage() {
                   key={item.tmdb_id}
                   item={item}
                   posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
-                  onClick={item.content_type === "movie"
-                    ? () => nav(`/library/${item.id}`)
-                    : undefined}
+                  onClick={() => nav(`/library/${item.id}`)}
                 />
               ))}
             </div>
