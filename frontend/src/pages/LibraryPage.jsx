@@ -159,7 +159,7 @@ export default function LibraryPage() {
                     item={item}
                     posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
                     progress={item.progress_percent}
-                    onClick={() => nav(`/library/${item.tmdb_id}`)}
+                    onClick={() => nav(`/library/${item.id}`)}
                   />
                 ))}
               </div>
@@ -175,7 +175,7 @@ export default function LibraryPage() {
                   item={item}
                   posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
                   onClick={item.content_type === "movie"
-                    ? () => nav(`/library/${item.tmdb_id}`)
+                    ? () => nav(`/library/${item.id}`)
                     : undefined}
                 />
               ))}
@@ -191,7 +191,7 @@ export default function LibraryPage() {
                     key={item.tmdb_id}
                     item={item}
                     posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
-                    onClick={() => nav(`/library/${item.tmdb_id}`)}
+                    onClick={() => nav(`/library/${item.id}`)}
                   />
                 ))}
               </div>
