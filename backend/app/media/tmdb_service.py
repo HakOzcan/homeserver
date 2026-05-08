@@ -133,6 +133,49 @@ async def get_tv_details(tmdb_id: int) -> dict:
 
     return response.json()
 
+async def get_season_episodes(tmdb_id: int, season_number: int) -> list:
+    """
+    @brief Fetch episode details for a specific season from cache or TMDB API.
+    @details Checks for a cached season JSON file first. If not found,
+             calls the TMDB API and saves the result for future use.
+    @param tmdb_id The TMDB TV show ID.
+    @param season_number The season number to fetch.
+    @return List of episode dicts with name, overview, runtime, episode_number.
+    """
+    cache_dir = os.path.join(CACHE_ROOTS["tv"], str(tmdb_id))
+    cache_file = os.path.join(cache_dir, f"season_{season_number}.json")
+
+    if os.path.isfile(cache_file):
+        with open(cache_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    params = {
+        "api_key": settings.TMDB_API_KEY,
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{settings.TMDB_BASE_URL}/tv/{tmdb_id}/season/{season_number}",
+            params=params,
+        )
+        response.raise_for_status()
+
+    season_data = response.json()
+    episodes = []
+    for ep in season_data.get("episodes", []):
+        episodes.append({
+            "episode_number": ep.get("episode_number"),
+            "name": ep.get("name"),
+            "overview": ep.get("overview"),
+            "runtime": ep.get("runtime"),
+        })
+
+    os.makedirs(cache_dir, exist_ok=True)
+    with open(cache_file, "w", encoding="utf-8") as f:
+        json.dump(episodes, f, ensure_ascii=False, indent=2)
+
+    return episodes
+
 async def download_image(tmdb_id: int, content_type: str, image_type: str, tmdb_path: str) -> bool:
     """
     @brief Download an image from TMDB's CDN and save it to the cache folder.

@@ -139,16 +139,11 @@ export default function LibraryPage() {
                 )}
                 <p className="hero__overview">{library.hero.overview}</p>
                 <div className="hero__actions">
-                  {library.hero.content_type === "movie" ? (
-                    <button
-                      className="btn btn--play"
-                      onClick={() => nav(`/player/movies/${library.hero.tmdb_id}`)}
-                    >
-                      ▶ Play
-                    </button>
-                  ) : (
-                    <button className="btn btn--play" disabled>Coming Soon</button>
-                  )}
+                  <button 
+                    className="btn btn--play"
+                    onClick={() => nav(`/library/${library.hero.id}`)}>
+                    More Info
+                  </button>
                 </div>
               </div>
             </section>
@@ -164,9 +159,7 @@ export default function LibraryPage() {
                     item={item}
                     posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
                     progress={item.progress_percent}
-                    onClick={item.content_type === "movie"
-                      ? () => nav(`/player/movies/${item.tmdb_id}`)
-                      : undefined}
+                    onClick={() => nav(`/library/${item.tmdb_id}`)}
                   />
                 ))}
               </div>
@@ -182,7 +175,7 @@ export default function LibraryPage() {
                   item={item}
                   posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
                   onClick={item.content_type === "movie"
-                    ? () => nav(`/player/movies/${item.tmdb_id}`)
+                    ? () => nav(`/library/${item.tmdb_id}`)
                     : undefined}
                 />
               ))}
@@ -198,9 +191,7 @@ export default function LibraryPage() {
                     key={item.tmdb_id}
                     item={item}
                     posterUrl={imageUrls[`${item.content_type}/${item.tmdb_id}/poster`]}
-                    onClick={item.content_type === "movie"
-                      ? () => nav(`/player/movies/${item.tmdb_id}`)
-                      : undefined}
+                    onClick={() => nav(`/library/${item.tmdb_id}`)}
                   />
                 ))}
               </div>

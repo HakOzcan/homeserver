@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import LibraryPage from "./pages/LibraryPage.jsx";
+import ContentDetailPage from "./pages/ContentDetailPage.jsx";
 import PlayerPage from "./pages/PlayerPage.jsx";
 import VerifyPage from "./pages/VerifyPage.jsx";
 import AdminPanelPage from "./pages/AdminPanelPage.jsx";
@@ -41,6 +42,14 @@ export default function App() {
         element={
           <RequireAuth>
             <LibraryPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/library/:id"
+        element={
+          <RequireAuth>
+            <ContentDetailPage />
           </RequireAuth>
         }
       />

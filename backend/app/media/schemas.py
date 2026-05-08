@@ -85,3 +85,22 @@ class ProgressResponse(BaseModel):
     duration_seconds: float
     completed: bool
     updated_at: datetime
+
+class EpisodeResponse(BaseModel):
+    """
+    @brief A single TV episode available on disk.
+    @details Combines filesystem discovery (season/episode numbers)
+             with TMDB metadata (title, overview) when available.
+    """
+    season_number: int
+    episode_number: int
+    title: Optional[str] = None
+    overview: Optional[str] = None
+    runtime: Optional[int] = None
+
+class SeasonsResponse(BaseModel):
+    """
+    @brief All seasons and their episodes for a TV show.
+    @details Keys are season numbers as strings, values are episode lists.
+    """
+    seasons: dict  ## {"1": [EpisodeResponse, ...], "2": [...]}

@@ -18,8 +18,10 @@ from app.media.schemas import (
     LibraryResponse,
     ProgressUpdate,
     ProgressResponse,
+    EpisodeResponse,
+    SeasonsResponse,
 )
-from app.media.tmdb_service import store_content, STREAMING_ROOTS, CACHE_ROOTS
+from app.media.tmdb_service import store_content, get_season_episodes, STREAMING_ROOTS, CACHE_ROOTS
 
 router = APIRouter(prefix="/media", tags=["Media"])
 
@@ -106,6 +108,91 @@ async def get_library(user=Depends(require_active_user), db: Session = Depends(g
         recently_added=[ContentResponse.model_validate(c) for c in all_content],
         genre_rows=genre_rows,
     )
+
+@router.get("/content/{content_id}")
+async def get_content_detail(
+    content_id: int,
+    user=Depends(require_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    @brief Return full metadata for a single content item.
+    @details Used by the detail page when a user clicks a card.
+             Returns the same ContentResponse shape the library uses.
+    @param content_id The Content row's primary key.
+    @param user The authenticated active user.
+    @param db Database session.
+    @return ContentResponse with full metadata.
+    """
+    content = db.query(Content).filter(Content.id == content_id).first()
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return ContentResponse.model_validate(content)
+
+@router.get("/content/{content_id}/episodes")
+async def get_episodes(
+    content_id: int,
+    user=Depends(require_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    @brief Return all available seasons and episodes for a TV show.
+    @details Walks the streaming filesystem to discover which episodes
+             exist on disk, then enriches with TMDB metadata (episode
+             titles, overviews) via cache or API fallback.
+    @param content_id The Content row's primary key.
+    @param user The authenticated active user.
+    @param db Database session.
+    @return SeasonsResponse grouped by season number.
+    """
+    content = db.query(Content).filter(Content.id == content_id).first()
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    if content.content_type != "tv":
+        raise HTTPException(status_code=400, detail="Not a TV show")
+
+    show_dir = os.path.join(STREAMING_ROOTS["tv"], str(content.tmdb_id))
+    if not os.path.isdir(show_dir):
+        return SeasonsResponse(seasons={})
+
+    seasons = {}
+    for season_dir in sorted(os.listdir(show_dir)):
+        season_path = os.path.join(show_dir, season_dir)
+        if not os.path.isdir(season_path) or not season_dir.isdigit():
+            continue
+        season_num = int(season_dir)
+
+        tmdb_episodes = {}
+        try:
+            ep_list = await get_season_episodes(content.tmdb_id, season_num)
+            for ep in ep_list:
+                tmdb_episodes[ep["episode_number"]] = ep
+        except Exception:
+            pass
+
+        episodes = []
+        for ep_dir in sorted(os.listdir(season_path)):
+            ep_path = os.path.join(season_path, ep_dir)
+            if not os.path.isdir(ep_path) or not ep_dir.isdigit():
+                continue
+            if not os.path.isfile(os.path.join(ep_path, "master.m3u8")):
+                continue
+
+            ep_num = int(ep_dir)
+            tmdb_ep = tmdb_episodes.get(ep_num, {})
+
+            episodes.append(EpisodeResponse(
+                season_number=season_num,
+                episode_number=ep_num,
+                title=tmdb_ep.get("name"),
+                overview=tmdb_ep.get("overview"),
+                runtime=tmdb_ep.get("runtime"),
+            ))
+
+        if episodes:
+            seasons[str(season_num)] = episodes
+
+    return SeasonsResponse(seasons=seasons)
 
 @router.post("/progress")
 async def update_progress(
@@ -216,8 +303,25 @@ async def _scan_library(db: Session) -> dict:
 
             if not os.path.isdir(folder_path):
                 continue
-            if not os.path.isfile(os.path.join(folder_path, "master.m3u8")):
-                continue
+            ## Movies have master.m3u8 at the root, TV has it nested in season/episode dirs
+            if content_type == "movie":
+                if not os.path.isfile(os.path.join(folder_path, "master.m3u8")):
+                    continue
+            else:
+                has_episodes = False
+                for season_dir in os.listdir(folder_path):
+                    season_path = os.path.join(folder_path, season_dir)
+                    if not os.path.isdir(season_path):
+                        continue
+                    for ep_dir in os.listdir(season_path):
+                        ep_path = os.path.join(season_path, ep_dir)
+                        if os.path.isfile(os.path.join(ep_path, "master.m3u8")):
+                            has_episodes = True
+                            break
+                    if has_episodes:
+                        break
+                if not has_episodes:
+                    continue          
 
             if not folder.isdigit():
                 errors.append(f"Non-numeric folder skipped: {content_type}/{folder}")
