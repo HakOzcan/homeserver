@@ -22,7 +22,6 @@ async def periodic_scan(interval_seconds: int = 3600):
     @param interval_seconds Time between scans (default: 1 hour).
     """
     while True:
-        await asyncio.sleep(interval_seconds)
         try:
             db = SessionLocal()
             try:
@@ -33,6 +32,7 @@ async def periodic_scan(interval_seconds: int = 3600):
                 db.close()
         except Exception as e:
             logger.error(f"Periodic scan failed: {e}")
+        await asyncio.sleep(interval_seconds)
 
 @asynccontextmanager
 async def lifespan(app):
