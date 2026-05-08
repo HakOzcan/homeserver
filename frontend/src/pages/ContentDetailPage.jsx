@@ -97,11 +97,17 @@ export default function ContentDetailPage() {
       {content.cast && content.cast.length > 0 && (
         <section className="lib__section">
           <h2 className="lib__section-title">Cast</h2>
-          <div className="detail__cast">
-            {content.cast.slice(0, 8).map(member => (
-              <span key={member.name} className="detail__cast-member">
-                {member.name}{member.character ? ` as ${member.character}` : ""}
-              </span>
+          <div className="lib__row">
+            {content.cast.slice(0, 10).map(member => (
+                <div key={member.name} className="detail__cast-card">
+                    <div className="detail__cast-avatar">
+                        {member.name[0]}
+                    </div>
+                    <div className="detail__cast-name">{member.name}</div>
+                    {member.character && (
+                        <div className="detail__cast-role">{member.character}</div>
+                    )}
+                </div>
             ))}
           </div>
         </section>

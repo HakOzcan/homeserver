@@ -284,18 +284,39 @@
   margin-bottom: 12px;
 }
 
-.detail__cast {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.detail__cast-card {
+  flex-shrink: 0;
+  width: 120px;
+  text-align: center;
 }
 
-.detail__cast-member {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+.detail__cast-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
   color: var(--muted);
+  margin: 0 auto 8px auto;
+}
+
+.detail__cast-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail__cast-role {
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .detail__season-tabs {
