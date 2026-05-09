@@ -1,11 +1,58 @@
 import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 
-function detectVideoCapabilities() {
-  const h264 = MediaSource.isTypeSupported('video/mp4; codecs="avc1.640033"');
-  const nativeHls = document.createElement("video").canPlayType("application/vnd.apple.mpegurl");
-  const hevc = !nativeHls && MediaSource.isTypeSupported('video/mp4; codecs="hvc1.2.4.L150.B0"');
-  return { h264, hevc, hdr: hevc };
+async function detectVideoCapabilities() {
+  const h264 = MediaSource.isTypeSupported(`video/mp4; codecs="avc1.640033"`);
+
+  let hevc = false;
+  let hdr = false;
+
+  if (navigator.mediaCapabilities){
+    try {
+      const hevcResult = await navigator.mediaCapabilities.decodingInfo({
+        type: `media-source`,
+        video: {
+          contentType: `video/mp4; codecs="hvc1.2.4.L153.B0"`,
+          width: 3840,
+          height: 2160,
+          bitrate: 20000000,
+          framerate: 24,
+        },
+      });
+      hevc=hevcResult.supported;
+    } catch {
+      hevc = false;
+    }
+
+    if (hevc) {
+      try {
+        const hdrResult = await navigator.mediaCapabilities.decodingInfo({
+          type: `media-source`,
+          video: {
+            contentType: `video/mp4; codecs="hvc1.2.4.L153.B0"`,
+            width: 3840,
+            height: 2160,
+            bitrate: 40000000,
+            framerate: 24,
+            transferFunction: `pq`,
+          },
+        });
+        hdr = hdrResult.supported;
+      } catch {
+        hdr = false;
+      }
+    }
+  } else {
+    const hevcStrings = [
+      `video/mp4; codecs="hvc1.2.4.L153.B0"`,
+      `video/mp4; codecs="hvc1.2.4.L150.B0"`,
+      `video/mp4; codecs="hvc1.2.4.L153.B0"`,
+    ];
+    hevc = hevcStrings.some((s) => MediaSource.isTypeSupported(s));
+    hdr = hevc;
+  }
+
+  return { h264, hevc, hdr };
 }
 
 const VideoPlayer = ({ video, onBack }) => {
