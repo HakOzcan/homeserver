@@ -81,8 +81,8 @@ const VideoPlayer = ({ video, onBack }) => {
       hls.loadSource(src);
       hls.attachMedia(videoEl);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        const caps = detectVideoCapabilities();
+      hls.on(Hls.Events.MANIFEST_PARSED, async () => {
+        const caps = await detectVideoCapabilities();
         const allLevels = hls.levels;
 
         const supported = [];
@@ -113,10 +113,7 @@ const VideoPlayer = ({ video, onBack }) => {
 
       hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, (_, data) => {
         const supported = data.audioTracks.filter((track) => {
-          if (track.url.includes("eac3")) {
-            return MediaSource.isTypeSupported(`audio/mp4; codecs="ec-3"`);
-          }
-          return true;
+          return !track.url.includes("eac3");
         });
         setAudioTracks(supported);
 
