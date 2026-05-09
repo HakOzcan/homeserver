@@ -113,7 +113,7 @@ const VideoPlayer = ({ video, onBack }) => {
 
       hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, (_, data) => {
         const supported = data.audioTracks.filter((track) => {
-          return !track.url.includes("eac3");
+          return !track.url.includes("dolby");
         });
         setAudioTracks(supported);
 
