@@ -14,7 +14,7 @@ import GamesPage from "./pages/GamesPage.jsx";
 import GameStreamPage from "./pages/GameStreamPage.jsx";
 import { api } from "./lib/api.jsx";
 
-const REFRESH_INTERVAL = 60 * 1000;
+const REFRESH_INTERVAL = 50 * 60 * 1000;
 
 function useTokenRefresh() {
   const isActive = useRef(false);
