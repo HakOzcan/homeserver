@@ -71,9 +71,16 @@ export default function GameStreamPage() {
 
         start();
 
+        const activityInterval = setInterval(() => {
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                window.dispatchEvent(new Event("media-activity"));
+            }
+        }, 5 * 60 * 1000)
+
         // Cleanup: close WebSocket and stop session when leaving the page
         return () => {
             canceled = true;
+            clearInterval(activityInterval);
             if (ws) ws.close();
             if (sessionIdRef.current) {
                 api.delete(`/gaming/sessions/${sessionIdRef.current}`).catch(() => {});

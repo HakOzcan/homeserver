@@ -24,7 +24,7 @@ function useTokenRefresh() {
 
     const markActive = () => { isActive.current = true; };
 
-    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart", "media-activity"];
     events.forEach((e) => window.addEventListener(e, markActive, { passive:true }));
 
     const intervalId = setInterval(async () => {

@@ -141,13 +141,21 @@ const VideoPlayer = ({ video, onBack }) => {
 
       hlsRef.current = hls;
 
-      return () => {
-        hls.destroy();
-      };
     } else if (videoEl.canPlayType("application/vnd.apple.mpegurl")) {
       videoEl.src = src;
       videoEl.addEventListener("loadedmetadata", () => videoEl.play());
     }
+
+    const activityInterval = setInterval(() => {
+      if (videoEl && !videoEl.paused) {
+        window.dispatchEvent(new Event("media-activity"));
+      }
+    }, 5 * 60 * 1000);
+
+    return () => {
+      if (hlsRef.current) hlsRef.current.destroy();
+      clearInterval(activityInterval);
+    };
   }, [video]);
 
   const onQualityChange = (e) => {
