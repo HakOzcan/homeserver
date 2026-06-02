@@ -55,7 +55,7 @@ async function detectVideoCapabilities() {
   return { h264, hevc, hdr };
 }
 
-const VideoPlayer = ({ video, onBack }) => {
+const VideoPlayer = ({ video }) => {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
   const [levels, setLevels] = useState([]);
@@ -183,7 +183,6 @@ const VideoPlayer = ({ video, onBack }) => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h2>{video}</h2>
       <video 
         ref={videoRef}
         controls
@@ -234,11 +233,6 @@ const VideoPlayer = ({ video, onBack }) => {
           </select>
         </label>
       </div>
-
-      <br />
-      <button onClick={onBack} style={{ marginTop: "1rem" }}>
-        ← Back to Library
-      </button>
     </div>
   );
 };
