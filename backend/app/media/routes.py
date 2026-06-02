@@ -129,6 +129,26 @@ async def get_content_detail(
         raise HTTPException(status_code=404, detail="Content not found")
     return ContentResponse.model_validate(content)
 
+@router.get("/content/by-tmdb/{tmdb_id}")
+async def get_content_by_tmdb(
+    tmdb_id: int,
+    user=Depends(require_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    @brief Return full metadata for a content item by its TMDB ID.
+    @details Used by the player page to resolve a content title from
+             the TMDB ID embedded in the URL path (e.g. movies/479957).
+    @param tmdb_id The TMDB unique identifier (unique, indexed).
+    @param user The authenticated active user.
+    @param db Database session.
+    @return ContentResponse with full metadata.
+    """
+    content = db.query(Content).filter(Content.tmdb_id == tmdb_id).first()
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return ContentResponse.model_validate(content)
+
 @router.get("/content/{content_id}/episodes")
 async def get_episodes(
     content_id: int,
