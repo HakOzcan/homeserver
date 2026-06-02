@@ -175,6 +175,15 @@ def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token({"sub": str(user.id), "email": user.email, "username": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.post("/refresh")
+def refresh_token(user=Depends(require_active_user)):
+    access_token = create_access_token({
+        "sub": str(user.id),
+        "email": user.email,
+        "username": user.username,
+    })
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @router.delete("/delete")
 def delete(user = Depends(get_current_user), db: Session = Depends(get_db)):
     # Delete the currently logged-in user
