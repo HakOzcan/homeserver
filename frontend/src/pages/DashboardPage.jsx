@@ -15,10 +15,10 @@ export default function DashboardPage() {
         const res = await api.get("/auth/me");
         setDisplayName(res.data.username || "");
         setIsAdmin(res.data.is_admin);
-      } catch {
-        // token expired
-        localStorage.removeItem("token");
-        nav("/login");
+      } catch (err) {
+        if (err.response?.status !== 401) {
+          setMsg("Failed to load user data");
+        }
       }
     };
     load();

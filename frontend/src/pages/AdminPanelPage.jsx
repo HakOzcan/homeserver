@@ -7,13 +7,9 @@ export default function AdminPanelPage() {
   const [pending, setPending] = useState([]);
   const [msg, setMsg] = useState("");
 
-  const token = localStorage.getItem("token");
-
   const load = async () => {
     try {
-      const res = await api.get("/admin/pending-users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/admin/pending-users");
       setPending(res.data.users);
     } catch (err) {
       setMsg(err.response?.data?.detail || "Failed to load pending users");
@@ -26,9 +22,7 @@ export default function AdminPanelPage() {
 
   const approve = async (id) => {
     try {
-      await api.post(`/admin/approve/${id}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post(`/admin/approve/${id}`);
       setMsg("Approved ✅");
       load();
     } catch (err) {
@@ -38,9 +32,7 @@ export default function AdminPanelPage() {
 
   const reject = async (id) => {
     try {
-      await api.post(`/admin/reject/${id}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post(`/admin/reject/${id}`);
       setMsg("Rejected ❌");
       load();
     } catch (err) {
