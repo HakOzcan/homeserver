@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import HomePage from "./pages/HomePage.jsx";
@@ -12,6 +12,41 @@ import VerifyPage from "./pages/VerifyPage.jsx";
 import AdminPanelPage from "./pages/AdminPanelPage.jsx";
 import GamesPage from "./pages/GamesPage.jsx";
 import GameStreamPage from "./pages/GameStreamPage.jsx";
+import { api } from "./lib/api.jsx";
+
+const REFRESH_INTERVAL = 50 * 60 * 1000;
+
+function useTokenRefresh() {
+  const isActive = useRef(false);
+
+  useEffect (() => {
+    if (!localStorage.getItem("token")) return;
+
+    const markActive = () => { isActive.current = true; };
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, markActive, { passive:true }));
+
+    const intervalId = setInterval(async () => {
+      if (!isActive.current) return;
+      if (!localStorage.getItem("token")) return;
+
+      isActive.current = false;
+
+      try {
+        const res = await api.post("/auth/refresh");
+        localStorage.setItem("token", res.data.access_token);
+      } catch {
+        // refresh failed - 401 interceptor handles the redirect
+      }
+    }, REFRESH_INTERVAL);
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, markActive));
+      clearInterval(intervalId);
+    };
+  }, []);
+}
 
 function RequireAuth({ children }) {
   const token = localStorage.getItem("token");
@@ -20,6 +55,7 @@ function RequireAuth({ children }) {
 }
 
 export default function App() {
+  useTokenRefresh();
   return (
     <Routes>
       {/* Public */}
