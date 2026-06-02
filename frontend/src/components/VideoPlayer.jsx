@@ -68,13 +68,13 @@ const VideoPlayer = ({ video, onBack }) => {
 
   useEffect(() => {
     const videoEl = videoRef.current;
-    const token = localStorage.getItem("token");
     const src = `https://api.hakserver.cc/api/media/hls/${video}/master.m3u8`;
 
     if (Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr) => {
-          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          const token = localStorage.getItem("token");
+          if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         },
       });
 
