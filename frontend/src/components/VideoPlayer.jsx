@@ -1,5 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
-import Hls from "hls.js";
+import React, {useEffect, useRef} from "react";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
+import "../styles/player.css";
 
 async function detectVideoCapabilities() {
   const h264 = MediaSource.isTypeSupported(`video/mp4; codecs="avc1.640033"`);
@@ -12,21 +14,21 @@ async function detectVideoCapabilities() {
       const hevcResult = await navigator.mediaCapabilities.decodingInfo({
         type: `media-source`,
         video: {
-          contentType: `video/mp4; codecs="hvc1.2.4.L153.B0"`,
+          contentType: `video/mp4: codecs="hvc1.2.4.L153.B0"`,
           width: 3840,
           height: 2160,
           bitrate: 20000000,
           framerate: 24,
         },
       });
-      hevc=hevcResult.supported;
+      hevc = hevcResult.supported;
     } catch {
       hevc = false;
     }
 
     if (hevc) {
       try {
-        const hdrResult = await navigator.mediaCapabilities.decodingInfo({
+        const hdrResult = await nevigator.mediaCapabilities.decodingInfo({
           type: `media-source`,
           video: {
             contentType: `video/mp4; codecs="hvc1.2.4.L153.B0"`,
@@ -52,189 +54,104 @@ async function detectVideoCapabilities() {
     hdr = hevc;
   }
 
-  return { h264, hevc, hdr };
+  return {h264, hevc, hdr};
 }
 
 const VideoPlayer = ({ video }) => {
-  const videoRef = useRef(null);
-  const hlsRef = useRef(null);
-  const [levels, setLevels] = useState([]);
-  const [currentLevel, setCurrentLevel] = useState(-1);
-  const [audioTracks, setAudioTracks] = useState([]);
-  const [currentAudioTrack, setCurrentAudioTrack] = useState(-1);
-  const [subtitleTracks, setSubtitleTracks] = useState([]);
-  const [currentSubtitleTrack, setCurrentSubtitleTrack] = useState(-1);
-  const [supportedLevelIndices, setSupportedLevelIndices] = useState([]);
+  const containerRef = useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
-    const videoEl = videoRef.current;
+    if (playerRef.current) return;
+
     const src = `https://api.hakserver.cc/api/media/hls/${video}/master.m3u8`;
 
-    if (Hls.isSupported()) {
-      const hls = new Hls({
-        xhrSetup: (xhr) => {
-          const token = localStorage.getItem("token");
-          if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    const videoElement = document.createElement("video-js");
+    videoElement.classList.add("vjs-big-play-centered");
+    containerRef.current.appendChild(videoElement);
+
+    videojs.Vhs.xhr.beforeRequest = (options) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        options.headers = options.headers || {};
+        options.headers.Authorization = `Bearer ${token}`;
+      }
+      return options;
+    };
+
+    const player = videojs(videoElement, {
+      controls: true,
+      autoplay: true,
+      fluid: true,
+      responsive: true,
+      html5: {
+        vhs: {
+          overrideNative: true,
         },
+        nativeAudioTracks: false,
+        nativeVideoTracks: false,
+        nativeTextTracks: false,
+      },
+      sources: [{ src, type: "application/x-mpegURL" }],
+    });
+
+    const qualityLevels = player.qualityLevels();
+
+    detectVideoCapabilities().then((caps) => {
+      qualityLevels.on("addqualitylevel", (event) => {
+        const level = event.qualityLevel;
+        const codecs = (level.codecs || "").toLowerCase();
+        const isHevc = codecs.includes("hvc1") || codecs.includes("hev1");
+
+        if (isHevc && !caps.hevc) {
+          level.enabled = false;
+        }
+        if (isHevc && codecs.includes("hvc1.2") && !caps.hdr) {
+          level.enabled = false;
+        }
       });
+    });
 
-      hls.loadSource(src);
-      hls.attachMedia(videoEl);
+    player.ready(() => {
+      const audioTracks = player.audioTracks();
 
-      hls.on(Hls.Events.MANIFEST_PARSED, async () => {
-        const caps = await detectVideoCapabilities();
-        const allLevels = hls.levels;
-
-        const supported = [];
-        allLevels.forEach((level, i) => {
-          const isHevc = level.codecs?.toLowerCase().includes("hvc1");
-          const isHdr = level.videoRange === "PQ";
-
-          if (isHevc && isHdr) {
-            if (caps.hdr) supported.push(i);
-          } else if (isHevc) {
-            if (caps.hevc) supported.push(i);
-          } else {
-            supported.push(i);
+      const filterAudio = () => {
+        let stereoIndex = -1;
+        for (let i = 0; i < audioTracks.length; i++) {
+          const track = audioTracks[i];
+          if (track.label && track.label.toLowerCase().includes("dolby")) {
+            track.enabled = false;
           }
-        });
-
-        setSupportedLevelIndices(supported);
-        setLevels(allLevels);
-
-        if (!supported.includes(hls.currentLevel) && supported.length > 0) {
-          hls.currentLevel = supported[0];
+          if (track.label && track.label.includes("Stereo") && stereoIndex === -1) {
+            stereoIndex = i;
+          }
         }
-
-        setCurrentLevel(hls.currentLevel);
-        setCurrentAudioTrack(hls.audioTrack);
-        videoEl.play();
-      });
-
-      hls.on(Hls.Events.AUDIO_TRACKS_UPDATED, (_, data) => {
-        const supported = data.audioTracks.filter((track) => {
-          return !track.url.includes("dolby");
-        });
-        setAudioTracks(supported);
-
-        const stereo = supported.find((t) => t.name.includes("Stereo"));
-        if (stereo) {
-          hls.audioTrack = stereo.id;
+        if (stereoIndex !== -1) {
+          audioTracks[stereoIndex].enabled = true;
         }
-      });
+      };
 
-      hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, (_, data) => {
-        setSubtitleTracks(data.subtitleTracks);
-      });
-
-      hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
-        setCurrentLevel(data.level);
-      });
-
-      hls.on(Hls.Events.AUDIO_TRACK_SWITCHED, (_, data) => {
-        setCurrentAudioTrack(data.id);
-      });
-
-      hls.on(Hls.Events.SUBTITLE_TRACK_SWITCH, (_, data) => {
-        setCurrentSubtitleTrack(data.id);
-      });
-
-      hlsRef.current = hls;
-
-    } else if (videoEl.canPlayType("application/vnd.apple.mpegurl")) {
-      videoEl.src = src;
-      videoEl.addEventListener("loadedmetadata", () => videoEl.play());
-    }
+      audioTracks.on("addtrack", filterAudio);
+    });
 
     const activityInterval = setInterval(() => {
-      if (videoEl && !videoEl.paused) {
+      if (player && !player.paused()) {
         window.dispatchEvent(new Event("media-activity"));
       }
     }, 5 * 60 * 1000);
 
+    playerRef.current = player;
+
     return () => {
-      if (hlsRef.current) hlsRef.current.destroy();
       clearInterval(activityInterval);
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
     };
   }, [video]);
 
-  const onQualityChange = (e) => {
-    const level = parseInt(e.target.value);
-    if (hlsRef.current) {
-      hlsRef.current.currentLevel = level;
-      setCurrentLevel(level);
-    }
-  };
-
-  const onAudioChange = (e) => {
-    const track = parseInt(e.target.value);
-    if (hlsRef.current) {
-      hlsRef.current.audioTrack = track;
-    }
-  };
-
-  const onSubtitleChange = (e) => {
-    const track = parseInt(e.target.value);
-    if (hlsRef.current) {
-      hlsRef.current.subtitleTrack = track;
-      hlsRef.current.subtitleDisplay = track !== -1;
-    }
-  };
-
-  return (
-    <div style={{ textAlign: "center" }}>
-      <video 
-        ref={videoRef}
-        controls
-        style={{
-          width: "100%",
-          maxWidth: "1200px",
-          borderRadius: "12px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.3)",
-        }}
-      />
-
-      <div style ={{ marginTop: "1rem", display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap"  }}>
-        <label>
-          Quality:
-          <select value={currentLevel} onChange={onQualityChange} style={{ marginLeft: "0.5rem" }}>
-            <option value={-1}>Auto</option>
-            {levels.map((level, i) => {
-              if (!supportedLevelIndices.includes(i)) return null;
-              return (
-                <option key={i} value={i}>
-                  {level.height}p {level.videoRange === "PQ" ? "HDR" : "SDR"}
-                </option>
-              );
-            })}
-          </select>
-        </label>
-
-        <label>
-          Audio:
-          <select value={currentAudioTrack} onChange={onAudioChange} style={{ marginLeft: "0.5rem" }}>
-            {audioTracks.map((track) => (
-              <option key={track.id} value={track.id}>
-                {track.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Subtitles:
-          <select value={currentSubtitleTrack} onChange={onSubtitleChange} style={{ marginLeft: "0.5rem" }}>
-            <option value={-1}>Off</option>
-            {subtitleTracks.map((track) => (
-              <option key={track.id} value={track.id}>
-                {track.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-    </div>
-  );
+  return <div ref={containerRef} data-vjs-player />;
 };
 
 export default VideoPlayer;
