@@ -14,7 +14,7 @@ async function detectVideoCapabilities() {
       const hevcResult = await navigator.mediaCapabilities.decodingInfo({
         type: `media-source`,
         video: {
-          contentType: `video/mp4: codecs="hvc1.2.4.L153.B0"`,
+          contentType: `video/mp4; codecs="hvc1.2.4.L153.B0"`,
           width: 3840,
           height: 2160,
           bitrate: 20000000,
@@ -28,7 +28,7 @@ async function detectVideoCapabilities() {
 
     if (hevc) {
       try {
-        const hdrResult = await nevigator.mediaCapabilities.decodingInfo({
+        const hdrResult = await navigator.mediaCapabilities.decodingInfo({
           type: `media-source`,
           video: {
             contentType: `video/mp4; codecs="hvc1.2.4.L153.B0"`,
