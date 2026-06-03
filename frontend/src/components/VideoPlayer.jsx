@@ -227,6 +227,41 @@ const VideoPlayer = ({ video }) => {
         }
       });
 
+      hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED, (_, data) => {
+        if (data.subtitleTracks.length > 0) {
+          const subItems = [
+            { label: "Off", value: -1, selected: true },
+            ...data.subtitleTracks.map((t) => ({
+              label: t.name,
+              value: t.id,
+              selected: false,
+            })),
+          ];
+
+          const fsToggle = controlBar.getChild("fullscreenToggle");
+          const fsIndex = controlBar.children().indexOf(fsToggle);
+
+          controlBar.addChild("TrackMenuButton", {
+            trackItems: subItems,
+            eventName: "subtitlechange",
+            title: "Subtitles",
+            buttonLabel: "CC",
+            className: "vjs-subtitle-selector",
+          }, fsIndex);
+        }
+      });
+
+      player.on("subtitlechange", (_, data) => {
+        hls.subtitleTrack = data.value;
+        hls.subtitleDisplay = data.value !== -1;
+        const ss = controlBar.children().find(
+          (c) => c.hasClass && c.hasClass("vjs-subtitle-selector")
+        );
+        if (ss && ss.items) {
+          ss.items.forEach((item) => item.selected(item.trackValue === data.value));
+        }
+      });
+
       playerRef.current = player;
       playerRef.current._hls = hls;
 
