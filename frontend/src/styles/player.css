@@ -1,0 +1,39 @@
+.video-js {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.video-js .vjs-control-bar {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.video-js .vjs-menu-content {
+  background: rgba(11, 15, 20, 0.95) !important;
+}
+
+.video-js .vjs-menu li {
+  padding: 6px 16px;
+  font-size: 0.85rem;
+}
+
+.video-js .vjs-menu li.vjs-selected {
+  background: rgba(91, 140, 255, 0.35);
+  color: #fff;
+}
+
+.video-js .vjs-menu li:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.video-js .vjs-big-play-button {
+  display: none;
+}
+
+.vjs-quality-selector .vjs-menu-content {
+  max-height: 300px;
+  overflow-y: auto;
+}
