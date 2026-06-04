@@ -21,6 +21,9 @@ class User(Base):
     is_active = Column(Boolean, nullable=False, default=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     last_verification_email_sent_at = Column(DateTime(timezone=True), nullable=True)
+    ## @brief Active session identifier - only one session allowed per user.
+    ## A new UUID is written on each login, invalidating any previous session's JWT.
+    session_token = Column(String, nullable=True, default=None)
 
     ## @brief All watch progress entries belonging to this user.
     watch_progress = relationship("WatchProgress", back_populates="user")
