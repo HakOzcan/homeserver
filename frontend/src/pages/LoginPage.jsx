@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api.jsx";
 import "../styles/auth.css";
 
@@ -9,6 +9,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const sessionMsg = searchParams.get("reason") === "session_replaced"
+    ? "You were logged out because your account was logged in from another location."
+    : "";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,6 +34,8 @@ export default function LoginPage() {
     <div className="page page--center">
       <div className="card">
         <h2 className="card__title">Login</h2>
+
+        {sessionMsg && <p className="msg msg--error">{sessionMsg}</p>}
 
         <form onSubmit={handleLogin} className="form">
           <input
