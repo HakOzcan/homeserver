@@ -10,6 +10,7 @@ from app.auth.validators import validate_password_strength
 from app.core.config import settings
 from app.core.email_utils import send_email
 from datetime import datetime, timedelta, timezone
+import uuid
 
 RESEND_COOLDOWN_SECONDS = 120
 
@@ -171,8 +172,13 @@ def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account pending admin approval")
 
+    ## @brief Generate a new seesion token, invalidating any previous session.
+    session_token = str(uuid.uuid4())
+    user.session_token = session_token
+    db.commit()
+
     # Create an access token and return it as the credentials are valid
-    access_token = create_access_token({"sub": str(user.id), "email": user.email, "username": user.username})
+    access_token = create_access_token({"sub": str(user.id), "email": user.email, "username": user.username, "session_token": session_token})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/refresh")
