@@ -187,8 +187,18 @@ def refresh_token(user=Depends(require_active_user)):
         "sub": str(user.id),
         "email": user.email,
         "username": user.username,
+        "session_token": user.session_token,
     })
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/logout")
+def logout(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    """@brief Invalidate the current session by clearing the session token."""
+    db_user = db.query(User.id == user["sub"]).first()
+    if db_user:
+        db_user.session_token = None
+        db.commit()
+    return {"message": "Logged out successfully"}
 
 @router.delete("/delete")
 def delete(user = Depends(get_current_user), db: Session = Depends(get_db)):
