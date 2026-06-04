@@ -86,15 +86,6 @@ export default function LibraryPage() {
           ← Dashboard
         </button>
         <div className="brand">Library</div>
-        <button
-          className="btn btn--ghost"
-          onClick={() => {
-            localStorage.removeItem("token");
-            nav("/login");
-          }}
-        >
-          Logout
-        </button>
       </div>
 
       {loading && (

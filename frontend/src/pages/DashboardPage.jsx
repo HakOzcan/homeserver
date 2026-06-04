@@ -50,7 +50,12 @@ export default function DashboardPage() {
     load();
   }, [nav]);
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // If the call fails (e.g., token alread expired), proceed with local cleanup anyway
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user_email");
     nav("/login");
