@@ -36,9 +36,12 @@ services:
   game-runner:
     build: ./game-runner
     container_name: homeserver-game-runner
-    # Needs TURN_SECRET + SERVER_LAN_IP to allocate relays on coturn
-    env_file:
-      - .env
+    # Only the vars this service needs - never env_file with the whole .env:
+    # it contains VIRTUAL_HOST, and any container carrying that variable gets
+    # added to nginx-proxy's upstream pool for the public domain.
+    environment:
+      - TURN_SECRET=${TURN_SECRET}
+      - SERVER_LAN_IP=${SERVER_LAN_IP}
     # Host networking so aiortc's dynamic UDP ports are directly reachable -
     # WebRTC ICE candidates would otherwise advertise unreachable bridge IPs.
     # Side effects: port 9000 binds on the host (reachable from the LAN),
