@@ -13,8 +13,13 @@ response. aiortc gathers all ICE candidates before answering
 """
 
 import asyncio
+import base64
+import hashlib
+import hmac
 import json
 import logging
+import os
+import time
 
 from aiortc import (
     RTCConfiguration,
@@ -32,10 +37,42 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-## @brief STUN server used to discover our public IP:port.
-## @details Without this, the answer only contains LAN/host candidates and
-##          browsers outside the local network could never reach us.
-ICE_SERVERS = [RTCIceServer(urls="stun:stun.l.google.com:19302")]
+## @brief Shared secret matching coturn's --static-auth-secret (from .env).
+TURN_SECRET = os.getenv("TURN_SECRET", "")
+
+## @brief Address game-runner reaches coturn at. Must be the LAN IP, not the
+##        public hostname: sending to our own public IP would need router
+##        hairpin NAT (which fails), and the relay must bind on the LAN
+##        interface so its advertised external-ip candidate is forwardable.
+TURN_LOCAL_HOST = os.getenv("SERVER_LAN_IP", "127.0.0.1")
+
+
+def build_ice_servers() -> list[RTCIceServer]:
+    """
+    @brief Build the ICE server list for one peer connection.
+    @return STUN server plus, if configured, the local TURN relay with a
+            freshly minted ephemeral credential.
+
+    The relay candidate allocated on the local coturn advertises the
+    router's public IP on a forwarded port - that's what makes remote
+    (non-LAN) browsers able to reach us, since our host/srflx candidates
+    require hairpin NAT from outside. Credentials are computed per
+    connection because they expire (coturn REST auth mechanism, same
+    HMAC scheme the backend uses for browsers).
+    """
+    servers = [RTCIceServer(urls="stun:stun.l.google.com:19302")]
+    if TURN_SECRET:
+        expiry = int(time.time()) + 3600
+        username = f"{expiry}:game-runner"
+        digest = hmac.new(TURN_SECRET.encode(), username.encode(), hashlib.sha1).digest()
+        servers.append(
+            RTCIceServer(
+                urls=[f"turn:{TURN_LOCAL_HOST}:3478?transport=udp"],
+                username=username,
+                credential=base64.b64encode(digest).decode(),
+            )
+        )
+    return servers
 
 ## @brief Active peer connections keyed by session_id.
 ## @details One peer per session. Lets a re-offer (page refresh) replace a
@@ -118,7 +155,7 @@ async def webrtc_offer(session_id: str, offer: Offer):
     if old_pc:
         await old_pc.close()
 
-    pc = RTCPeerConnection(RTCConfiguration(iceServers=ICE_SERVERS))
+    pc = RTCPeerConnection(RTCConfiguration(iceServers=build_ice_servers()))
     _pcs[session_id] = pc
 
     pc.addTrack(CaptureVideoTrack(session.capture))

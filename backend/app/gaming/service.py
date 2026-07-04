@@ -8,7 +8,11 @@ keeping a clean separation between "how to talk to game-runner"
 and "how to handle the web request".
 """
 
+import base64
+import hashlib
+import hmac
 import os
+import time
 
 import httpx
 from fastapi import Response
@@ -17,6 +21,49 @@ from fastapi import Response
 ## direct UDP), so the backend may need to reach it via the host gateway
 ## instead of the compose service name.
 GAME_RUNNER_URL = os.getenv("GAME_RUNNER_URL", "http://game-runner:9000")
+
+## TURN server settings. TURN_SECRET must match coturn's --static-auth-secret;
+## TURN_HOST is the public hostname browsers reach the relay at.
+TURN_SECRET = os.getenv("TURN_SECRET", "")
+TURN_HOST = os.getenv("TURN_HOST", "hakserver.cc")
+TURN_CREDENTIAL_TTL = 6 * 3600  ## seconds a minted TURN credential stays valid
+
+def get_ice_config(user_id: str) -> dict:
+    """
+    @brief Build the ICE server list with ephemeral TURN credentials.
+    @param user_id Authenticated user's ID, embedded in the TURN username
+                   so coturn's per-user quota applies per account.
+    @return Dict shaped like RTCPeerConnection's configuration:
+            {"iceServers": [{urls, username?, credential?}, ...]}
+
+    Implements coturn's REST credential mechanism (--use-auth-secret):
+    - username is "<expiry unix timestamp>:<user id>"
+    - credential is base64(HMAC-SHA1(TURN_SECRET, username))
+    coturn recomputes the HMAC with the same shared secret and rejects the
+    credential after the timestamp passes, so nothing long-lived is ever
+    handed to the browser and no credential database is needed.
+    """
+    expiry = int(time.time()) + TURN_CREDENTIAL_TTL
+    username = f"{expiry}:{user_id}"
+    digest = hmac.new(TURN_SECRET.encode(), username.encode(), hashlib.sha1).digest()
+    credential = base64.b64encode(digest).decode()
+
+    return {
+        "iceServers": [
+            ## STUN needs no credentials - coturn serves it on the same port
+            {"urls": [f"stun:{TURN_HOST}:3478"]},
+            {
+                ## udp is the fast path; tcp is the fallback for networks
+                ## that block outbound UDP entirely
+                "urls": [
+                    f"turn:{TURN_HOST}:3478?transport=udp",
+                    f"turn:{TURN_HOST}:3478?transport=tcp",
+                ],
+                "username": username,
+                "credential": credential,
+            },
+        ]
+    }
 
 async def get_catalog() -> list[dict]:
     """

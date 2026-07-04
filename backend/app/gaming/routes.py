@@ -81,6 +81,19 @@ async def list_sessions(user=Depends(require_active_user)):
     """
     return await service.get_sessions()
 
+@router.get("/webrtc/ice-config")
+async def get_ice_config(user=Depends(require_active_user)):
+    """
+    @brief Provide the ICE server list (STUN + TURN) for the browser.
+    @param user Injected by auth - the user id is baked into the ephemeral
+                TURN username so quotas apply per account.
+    @return {"iceServers": [...]} ready to pass to new RTCPeerConnection().
+
+    The TURN credential in the response is HMAC-signed and time-limited
+    (coturn REST mechanism), so exposing it to the browser is safe.
+    """
+    return service.get_ice_config(user.id)
+
 @router.post("/webrtc/offer/{session_id}")
 async def webrtc_offer(session_id: str, offer: WebRTCOffer, user=Depends(require_active_user)):
     """

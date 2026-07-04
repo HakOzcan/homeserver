@@ -3,12 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../lib/api.jsx";
 import "../styles/game-stream.css";
 
-// STUN server so the offer includes our public address - needed when
-// the browser and the homeserver are not on the same network.
-const RTC_CONFIG = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-};
-
 // Wait until the peer connection has gathered all its ICE candidates,
 // so the offer we POST is complete and no trickle signaling is needed.
 // The timeout is a safety net: a partial candidate list usually still works.
@@ -59,8 +53,13 @@ export default function GameStreamPage() {
 
         async function start() {
             try {
-                // Step 1: Ask the backend to create a game session
-                const res = await api.post("/gaming/sessions", { game_id: gameId });
+                // Step 1: Ask the backend to create a game session, and fetch
+                // the ICE config (STUN + TURN with ephemeral credentials) -
+                // connection infrastructure is decided server-side.
+                const [res, iceRes] = await Promise.all([
+                    api.post("/gaming/sessions", { game_id: gameId }),
+                    api.get("/gaming/webrtc/ice-config"),
+                ]);
                 if (canceled) return;
 
                 const { session_id } = res.data;
@@ -68,7 +67,7 @@ export default function GameStreamPage() {
 
                 // Step 2: Build the peer connection. Everything that must be
                 // negotiated has to exist before createOffer().
-                pc = new RTCPeerConnection(RTC_CONFIG);
+                pc = new RTCPeerConnection(iceRes.data);
                 pcRef.current = pc;
 
                 // Receive-only video from game-runner
