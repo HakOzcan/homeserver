@@ -28,7 +28,6 @@ from aiortc import (
     RTCSessionDescription,
     VideoStreamTrack,
 )
-from aiortc.codecs import vp8
 from av import VideoFrame
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -40,8 +39,19 @@ logger = logging.getLogger(__name__)
 ## at 800x600@30 they starve the encoder, which then refreshes the image
 ## in coarse quantization passes - visible as waves rolling down the
 ## screen. Raise the ceiling: we serve few peers on LAN / a local relay.
-vp8.DEFAULT_BITRATE = 3_000_000
-vp8.MAX_BITRATE = 6_000_000
+## Best-effort: the module path is aiortc internals, not public API, so
+## a version that moved it must not take the whole service down.
+try:
+    from aiortc.codecs import vp8 as _vp8
+
+    _vp8.DEFAULT_BITRATE = 3_000_000
+    _vp8.MAX_BITRATE = 6_000_000
+    logger.info("VP8 bitrate ceiling raised to 6 Mbps")
+except ImportError:
+    logger.warning(
+        "aiortc.codecs.vp8 not found in this aiortc version - "
+        "running with default (low) encoder bitrate"
+    )
 
 router = APIRouter()
 
