@@ -62,7 +62,10 @@ services:
       retries: 3
 
   coturn:
-    image: coturn/coturn:4.6-alpine
+    # Debian-based image, not -alpine: detect-external-ip needs the openssl
+    # binary, which the alpine variant doesn't ship (external-ip silently
+    # ends up empty and relay candidates advertise the unreachable LAN IP)
+    image: coturn/coturn:4.6
     container_name: homeserver-coturn
     # Host networking for the same reason as game-runner: relayed media uses
     # a range of UDP ports whose advertised addresses must be real.
