@@ -45,10 +45,16 @@ logger = logging.getLogger(__name__)
 try:
     from aiortc.codecs import vpx as _vpx
 
-    if hasattr(_vpx, "DEFAULT_BITRATE") and hasattr(_vpx, "MAX_BITRATE"):
+    if hasattr(_vpx, "MIN_BITRATE") and hasattr(_vpx, "MAX_BITRATE"):
+        ## The floor is the load-bearing one: the sender obeys the browser's
+        ## REMB bandwidth estimate, and since aiortc never sends probing
+        ## traffic the estimate stays absurdly low (~120 kbps measured).
+        ## Every REMB update is clamped to [MIN, MAX], so MIN is our
+        ## guaranteed quality level.
+        _vpx.MIN_BITRATE = 2_000_000
         _vpx.DEFAULT_BITRATE = 3_000_000
         _vpx.MAX_BITRATE = 6_000_000
-        logger.info("VP8 bitrate ceiling raised to 6 Mbps")
+        logger.info("VP8 bitrate range pinned to 2-6 Mbps (default 3)")
     else:
         logger.warning(
             "aiortc.codecs.vpx bitrate constants moved - "
