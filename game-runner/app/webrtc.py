@@ -28,12 +28,20 @@ from aiortc import (
     RTCSessionDescription,
     VideoStreamTrack,
 )
+from aiortc.codecs import vp8
 from av import VideoFrame
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.session import session_manager
 
 logger = logging.getLogger(__name__)
+
+## aiortc's VP8 defaults (~0.5-1.5 Mbps cap) are tuned for video calls;
+## at 800x600@30 they starve the encoder, which then refreshes the image
+## in coarse quantization passes - visible as waves rolling down the
+## screen. Raise the ceiling: we serve few peers on LAN / a local relay.
+vp8.DEFAULT_BITRATE = 3_000_000
+vp8.MAX_BITRATE = 6_000_000
 
 router = APIRouter()
 
@@ -176,7 +184,11 @@ async def webrtc_offer(session_id: str, offer: Offer):
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
         """
-        @brief Clean up when the peer dies.
+        @brief Start the game when the peer arrives, clean up when it dies.
+
+        The game process is launched only once the connection is up, so
+        the player sees it from its first frame instead of joining a game
+        that has been running unwatched through ICE negotiation.
 
         WebRTC has no explicit close message from the browser; when the
         user leaves, the connection transitions to "failed" after consent
@@ -184,10 +196,19 @@ async def webrtc_offer(session_id: str, offer: Offer):
         the session on disconnect.
         """
         logger.info(f"[{session_id}] WebRTC connection state: {pc.connectionState}")
-        if pc.connectionState in ("failed", "closed"):
-            _pcs.pop(session_id, None)
-            await pc.close()
-            await session_manager.stop_session(session_id)
+        if pc.connectionState == "connected":
+            try:
+                await session.start_game()
+            except Exception:
+                logger.exception(f"[{session_id}] Game failed to start")
+                await _teardown()
+        elif pc.connectionState in ("failed", "closed"):
+            await _teardown()
+
+    async def _teardown():
+        _pcs.pop(session_id, None)
+        await pc.close()
+        await session_manager.stop_session(session_id)
 
     await pc.setRemoteDescription(RTCSessionDescription(sdp=offer.sdp, type=offer.type))
     answer = await pc.createAnswer()

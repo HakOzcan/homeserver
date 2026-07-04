@@ -62,15 +62,20 @@ class GameSession:
 
     async def start(self):
         """
-        @brief Start all session components in sequence.
+        @brief Start the session infrastructure (display, capture, input).
 
         Launch order matters — each step depends on the previous:
         1. Xvfb must be running before anything can use the display
-        2. Game process needs the display to render to
-        3. FFmpeg needs something on the display to capture
-        4. InputInjector needs the display to send events to
+        2. FFmpeg captures the (still empty) display
+        3. InputInjector needs the display to send events to
 
-        @throws RuntimeError If Xvfb or the game process fails to start.
+        The game process itself is NOT started here: WebRTC negotiation
+        takes several seconds, and a game launched now would be playing
+        unwatched. start_game() is called by the WebRTC layer once the
+        peer connection is established, so the player sees the game
+        from its first frame.
+
+        @throws RuntimeError If Xvfb fails to start.
         """
         display = f":{self.display_number}"
 
@@ -95,7 +100,31 @@ class GameSession:
             raise RuntimeError(f"Xvfb failed: {stderr}")
         logger.info(f"[{self.session_id}] Xvfb started (pid={self.xvfb_process.pid})")
 
-        ## --- Step 2: Launch the game process ---
+        ## --- Step 2: Start frame capture (of the empty display for now) ---
+        self.capture = FrameCapture(self.display_number, self.width, self.height)
+        await self.capture.start()
+        logger.info(f"[{self.session_id}] FFmpeg capture started")
+
+        ## --- Step 3: Set up input injection ---
+        self.input_injector = InputInjector(self.display_number)
+
+        self.status = "running"
+        logger.info(f"[{self.session_id}] Session ready - waiting for WebRTC peer to start the game")
+
+    async def start_game(self):
+        """
+        @brief Launch the game process on the session's display.
+
+        Called by the WebRTC layer when the peer connection reaches
+        "connected", so the game starts right as the player can see it.
+        Idempotent: a re-offer on an already-started session is a no-op.
+
+        @throws RuntimeError If the game process exits immediately.
+        """
+        if self.game_process is not None:
+            return
+
+        display = f":{self.display_number}"
         env = {
             **os.environ,
             "DISPLAY": display,                 ## Tell the game which virtual display to use
@@ -138,17 +167,6 @@ class GameSession:
             raise RuntimeError(f"Game failed to start: {stderr}")
         logger.info(f"[{self.session_id}] Game started (pid={self.game_process.pid})")
 
-        ## --- Step 3: Start frame capture ---
-        self.capture = FrameCapture(self.display_number, self.width, self.height)
-        await self.capture.start()
-        logger.info(f"[{self.session_id}] FFmpeg capture started")
-
-        ## --- Step 4: Set up input injection ---
-        self.input_injector = InputInjector(self.display_number)
-
-        self.status = "running"
-        logger.info(f"[{self.session_id}] Session is now running")
-    
     async def stop(self):
         """
         @brief Gracefully stop all session components and clean up processes.
