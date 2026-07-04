@@ -39,17 +39,24 @@ logger = logging.getLogger(__name__)
 ## at 800x600@30 they starve the encoder, which then refreshes the image
 ## in coarse quantization passes - visible as waves rolling down the
 ## screen. Raise the ceiling: we serve few peers on LAN / a local relay.
-## Best-effort: the module path is aiortc internals, not public API, so
-## a version that moved it must not take the whole service down.
+## Best-effort: the module path is aiortc internals (pinned to 1.14.0 in
+## requirements.txt), not public API, so a change must never take the
+## whole service down - degrade to default bitrate with a warning instead.
 try:
-    from aiortc.codecs import vp8 as _vp8
+    from aiortc.codecs import vpx as _vpx
 
-    _vp8.DEFAULT_BITRATE = 3_000_000
-    _vp8.MAX_BITRATE = 6_000_000
-    logger.info("VP8 bitrate ceiling raised to 6 Mbps")
+    if hasattr(_vpx, "DEFAULT_BITRATE") and hasattr(_vpx, "MAX_BITRATE"):
+        _vpx.DEFAULT_BITRATE = 3_000_000
+        _vpx.MAX_BITRATE = 6_000_000
+        logger.info("VP8 bitrate ceiling raised to 6 Mbps")
+    else:
+        logger.warning(
+            "aiortc.codecs.vpx bitrate constants moved - "
+            "running with default (low) encoder bitrate"
+        )
 except ImportError:
     logger.warning(
-        "aiortc.codecs.vp8 not found in this aiortc version - "
+        "aiortc.codecs.vpx not found in this aiortc version - "
         "running with default (low) encoder bitrate"
     )
 

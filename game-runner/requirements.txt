@@ -2,5 +2,6 @@ fastapi
 uvicorn[standard]
 pygame
 pillow
-aiortc
+# pinned: webrtc.py tunes bitrate via aiortc.codecs.vpx internals
+aiortc==1.14.0
 numpy
