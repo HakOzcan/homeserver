@@ -8,5 +8,4 @@ bcrypt==3.2.2
 python-dotenv
 email-validator
 httpx
-websockets
 alembic

@@ -8,10 +8,15 @@ keeping a clean separation between "how to talk to game-runner"
 and "how to handle the web request".
 """
 
+import os
+
 import httpx
 from fastapi import Response
 
-GAME_RUNNER_URL = "http://game-runner:9000"
+## Overridable because game-runner runs with host networking (WebRTC needs
+## direct UDP), so the backend may need to reach it via the host gateway
+## instead of the compose service name.
+GAME_RUNNER_URL = os.getenv("GAME_RUNNER_URL", "http://game-runner:9000")
 
 async def get_catalog() -> list[dict]:
     """
@@ -62,6 +67,26 @@ async def stop_session(session_id: str) -> dict:
     """
     async with httpx.AsyncClient() as client:
         resp = await client.delete(f"{GAME_RUNNER_URL}/sessions/{session_id}")
+        resp.raise_for_status()
+        return resp.json()
+
+async def send_webrtc_offer(session_id: str, offer: dict) -> dict:
+    """
+    @brief Relay a WebRTC SDP offer to game-runner and return its answer.
+    @param session_id UUID of the session the browser wants to stream.
+    @param offer Dict with "sdp" and "type" from the browser's offer.
+    @return Dict with "sdp" and "type" - game-runner's SDP answer.
+    @throws httpx.HTTPStatusError if the session is unknown or not running.
+
+    Timeout is generous (30s vs the 5s default) because game-runner
+    gathers all ICE candidates before answering, which includes a
+    STUN round-trip to discover its public address.
+    """
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(
+            f"{GAME_RUNNER_URL}/webrtc/offer/{session_id}",
+            json=offer,
+        )
         resp.raise_for_status()
         return resp.json()
 

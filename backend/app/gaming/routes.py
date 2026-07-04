@@ -3,23 +3,19 @@
 @brief Gaming proxy routes - thin layer wiring auth to game-runner calls.
 
 Each route authenticates the user, calls the appropriate service function,
-and converts exceptions into HTTP errors. The Websocket endpoint handles
-auth via query param since browsers can't set headers on WebSocket connections.
+and converts exceptions into HTTP errors. Streaming itself happens over
+WebRTC directly between browser and game-runner; the backend only relays
+the SDP offer/answer signaling exchange.
 """
 
-import asyncio
 import httpx
-import websockets
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.auth.dependencies import require_active_user, require_admin
 from app.gaming import service
-from app.gaming.schemas import SessionCreate
-from app.core.security import verify_access_token
+from app.gaming.schemas import SessionCreate, WebRTCOffer
 
 ## @brief Router for all gaming proxy endpoints, mounted at /gaming
 router = APIRouter(prefix="/gaming", tags=["gaming"])
-
-GAME_RUNNER_WS = "ws://game-runner:9000"
 
 @router.get("/catalog")
 async def get_catalog(user=Depends(require_active_user)):
@@ -85,66 +81,23 @@ async def list_sessions(user=Depends(require_active_user)):
     """
     return await service.get_sessions()
 
-@router.websocket("/stream/{session_id}")
-async def stream_proxy(ws: WebSocket, session_id: str, token: str = ""):
+@router.post("/webrtc/offer/{session_id}")
+async def webrtc_offer(session_id: str, offer: WebRTCOffer, user=Depends(require_active_user)):
     """
-    @brief Bidirectional WebSocket proxy between browser and game-runner.
-    @param ws The client WebSocket connection from the browser.
+    @brief Relay the browser's WebRTC SDP offer to game-runner (signaling).
     @param session_id UUID of the session to stream.
-    @param token JWT passed as query param (?token=...) for authentication.
+    @param offer The browser's SDP offer ({"sdp": ..., "type": "offer"}).
+    @param user Injected by auth - a regular Authorization header works here,
+                unlike the old WebSocket proxy which needed ?token= in the URL.
+    @return Game-runner's SDP answer for the browser's setRemoteDescription().
 
-    Two concurrent tasks relay traffic:
-    - forward_frames: game-runner sends binary JPEG frames to browser
-    - forward_input: browser send JSON input events to game-runner
-    When either side disconnects, the other task is cancelled.
+    This is the backend's only involvement in streaming: after this single
+    offer/answer exchange, video and input flow directly between the
+    browser and game-runner over the negotiated WebRTC connection.
     """
-    # --- Step 1: Authenticate via query param ---
-    # Browser WebSocket API cannot set Authorization headers,
-    # so the frontend passes the JWT as ?token=<jwt>
     try:
-        payload = verify_access_token(token)
-        if payload is None:
-            await ws.close(code=4001, reason="Invalid token")
-            return
+        return await service.send_webrtc_offer(session_id, offer.model_dump())
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail="Failed to establish stream")
     except Exception:
-        await ws.close(code=4001, reason="Invalid token")
-        return
-    
-    # --- Step 2: Accept the client connection ---
-    await ws.accept()
-
-    # --- Step 3: Connect to game-runner's WebSocket ---
-    runner_ws_url = f"{GAME_RUNNER_WS}/stream/{session_id}"
-    try:
-        async with websockets.connect(runner_ws_url) as runner_ws:
-            async def forward_frames():
-                """@brief Relay binary JPEG frames from game-runner to browser"""
-                try:
-                    async for message in runner_ws:
-                        if isinstance(message, bytes):
-                            await ws.send_bytes(message)
-                except (WebSocketDisconnect, websockets.ConnectionClosed, asyncio.CancelledError):
-                    pass
-            
-            async def forward_input():
-                """@brief Relay JSON input events from browser to game-runner."""
-                try:
-                    while True:
-                        data = await ws.receive_text()
-                        await runner_ws.send(data)
-                except (WebSocketDisconnect, websockets.ConnectionClosed, asyncio.CancelledError):
-                    pass
-            
-            # --- Step 4: Run both directions concurrently ---
-            send_task = asyncio.create_task(forward_frames())
-            recv_task = asyncio.create_task(forward_input())
-
-            # Wait until one side disconnects, then cancel the other
-            done, pending = await asyncio.wait(
-                [send_task, recv_task],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-            for task in pending:
-                task.cancel()
-    except (ConnectionRefusedError, OSError):
-        await ws.close(code=4003, reason="Game runner unavailable")
+        raise HTTPException(status_code=503, detail="Game runner unavailable")

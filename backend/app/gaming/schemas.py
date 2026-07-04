@@ -32,15 +32,26 @@ class SessionCreate(BaseModel):
 class SessionResponse(BaseModel):
     """
     @brief Response returned after creating a session.
-    @details session_id is a UUID the frontend uses to open the WebSocket stream.
+    @details session_id is a UUID the frontend uses to negotiate the WebRTC stream.
     """
     session_id: str
     status: str
 
+class WebRTCOffer(BaseModel):
+    """
+    @brief SDP offer/answer payload for WebRTC signaling.
+    @details Matches the browser's RTCSessionDescription shape:
+             sdp is the session description text, type is "offer"
+             (from the browser) or "answer" (from game-runner).
+    """
+    sdp: str
+    type: str
+
 class InputEvent(BaseModel):
     """
-    @brief Schema for input events sent over the WebSocket.
-    @details The frontend sends these as JSON text frames.
+    @brief Schema for input events sent over the WebRTC DataChannel.
+    @details The frontend sends these as JSON messages directly to
+             game-runner (the backend never sees them).
              type determines which fields are relevant:
              - keydown/keyup: uses key
              - mousemove: uses x, y

@@ -15,6 +15,11 @@ services:
       - LETSENCRYPT_HOST=${BACKEND_LETSENCRYPT_HOST}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - VIRTUAL_PORT=8000
+      # game-runner uses host networking (WebRTC), so it's reached via the
+      # host gateway instead of the compose service name
+      - GAME_RUNNER_URL=http://host.docker.internal:9000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
     restart: unless-stopped
@@ -31,8 +36,11 @@ services:
   game-runner:
     build: ./game-runner
     container_name: homeserver-game-runner
-    expose:
-      - "9000"
+    # Host networking so aiortc's dynamic UDP ports are directly reachable -
+    # WebRTC ICE candidates would otherwise advertise unreachable bridge IPs.
+    # Side effects: port 9000 binds on the host (reachable from the LAN),
+    # and the backend reaches this service via host.docker.internal.
+    network_mode: host
     depends_on:
       - backend
     restart: unless-stopped

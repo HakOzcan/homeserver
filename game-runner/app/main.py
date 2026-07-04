@@ -2,7 +2,7 @@
 @file main.py
 @brief FastAPI application entry point for the game-runner service.
 
-Configures logging, creates the FastAPI app, mounts the WebSocket router,
+Configures logging, creates the FastAPI app, mounts the WebRTC router,
 and defines REST API endpoints for health checks, game catalog,
 and session management. This is the file Uvicorn runs inside the container
 """
@@ -17,15 +17,16 @@ from fastapi.responses import FileResponse
 from pathlib import Path
 from app.registry import registry
 from app.session import session_manager
-from app.ws import router as ws_router
+from app.webrtc import router as webrtc_router, close_peer
 
 ## @brief FastAPI application instance.
-## @details docs_url/redoc_url/openapi_url are disabled - this is internal
-##          service called only by the backend, not by end users directly
+## @details docs_url/redoc_url/openapi_url are disabled - the REST endpoints
+##          are called only by the backend; the browser talks to this service
+##          exclusively through the WebRTC connection it negotiates.
 app = FastAPI(title="Game Runner", docs_url=None, redoc_url=None, openapi_url=None)
 
-## Mount the WebSocket router (provides/stream/{session_id})
-app.include_router(ws_router)
+## Mount the WebRTC router (provides /webrtc/offer/{session_id})
+app.include_router(webrtc_router)
 
 @app.get("/health")
 async def health():
@@ -71,7 +72,7 @@ async def create_sessions(data: dict):
     @return JSON with session_id and status, or error if game not found.
 
     This triggers the full startup sequence: Xvfb -> game -> FFmpeg -> input.
-    The returned session_id is what the frontend uses to open the WebSocket.
+    The returned session_id is what the frontend uses to negotiate WebRTC.
     """
     game_id = data["game_id"]
     user_id = data["user_id"]
@@ -89,7 +90,11 @@ async def stop_session(session_id: str):
     @brief Stop a running game session and release its resources.
     @param session_id UUID of the session to stop.
     @return JSON confirming stopped status, or error if not found.
+
+    Closes the session's WebRTC peer connection first so the browser
+    sees the stream end immediately, then tears down the session.
     """
+    await close_peer(session_id)
     success = await session_manager.stop_session(session_id)
     if not success:
         return{"error": "Session not found"}
