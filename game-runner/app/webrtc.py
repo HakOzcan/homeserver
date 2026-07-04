@@ -60,6 +60,23 @@ try:
             "aiortc.codecs.vpx bitrate constants moved - "
             "running with default (low) encoder bitrate"
         )
+    ## Force a keyframe every ~3s. VP8 otherwise sends keyframes only on
+    ## receiver request, and inter-frame prediction leaves ghost trails of
+    ## vanished content (e.g. "GAME OVER" text) on static regions until
+    ## something redraws them. A periodic full refresh caps ghost lifetime.
+    if hasattr(_vpx, "Vp8Encoder") and hasattr(_vpx.Vp8Encoder, "encode"):
+        KEYFRAME_INTERVAL = 90  ## frames (~3s at 30fps)
+        _original_encode = _vpx.Vp8Encoder.encode
+
+        def _encode_with_periodic_keyframes(self, frame, force_keyframe=False):
+            count = getattr(self, "_kf_frame_count", 0)
+            self._kf_frame_count = count + 1
+            if count % KEYFRAME_INTERVAL == 0:
+                force_keyframe = True
+            return _original_encode(self, frame, force_keyframe)
+
+        _vpx.Vp8Encoder.encode = _encode_with_periodic_keyframes
+        logger.info("VP8 periodic keyframes enabled (every %d frames)", KEYFRAME_INTERVAL)
 except ImportError:
     logger.warning(
         "aiortc.codecs.vpx not found in this aiortc version - "
