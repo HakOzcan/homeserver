@@ -80,10 +80,10 @@ services:
       - --external-ip=$$(detect-external-ip)
       # Fixed relay range so the router can port-forward it (aiortc's own
       # ports are random, which is why we relay instead of forwarding those).
-      # Kept small (12 ports; worst case is ~2 allocations x 3 sessions)
-      # because the Bell Giga Hub needs one forwarding rule per port.
+      # Must stay identity-mapped with the router rule: external 49160-49200
+      # -> internal 49160-49200 -> here, and with the ufw allow rule.
       - --min-port=49160
-      - --max-port=49171
+      - --max-port=49200
       # An open relay is a tunnel into the LAN: forbid relaying to private
       # ranges, except the server itself - that's where game-runner lives.
       - --allowed-peer-ip=${SERVER_LAN_IP}
