@@ -1,27 +1,31 @@
 """
 @file capture.py
-@brief FFmpeg-based frame capture from a virtual X11 display.
+@brief FFmpeg-based raw frame capture from a virtual X11 display.
 
 Uses FFmpeg's x11grab to capture a virtual Xvfb display and outputs
-an MJPEG stream to stdout. Frames are parsed by detecting JPEG SOI/EOI
-markers (0xFFD8 / 0xFFD9) in the raw byte stream.
+raw yuv420p frames to stdout. Every frame has a fixed byte size
+(width * height * 3/2), so frames are read with exact-size reads —
+no marker parsing needed. The latest frame is stored as a numpy array
+shaped for aiortc's VideoFrame.from_ndarray(format="yuv420p").
 """
 
 import asyncio
 import logging
 
+import numpy as np
+
 logger = logging.getLogger(__name__)
 
 class FrameCapture:
     """
-    @brief Captures frames from an X11 display via FFmpeg subprocess.
+    @brief Captures raw video frames from an X11 display via FFmpeg subprocess.
 
     Spawns FFmpeg as an async subprocess that grabs a virtual display
-    and outputs JPEG frames to stdout. A background task continuously
+    and outputs raw yuv420p frames to stdout. A background task continuously
     reads the stream and stores the latest frame for retrieval.
 
     @note Only the most recent frame is kept — older frames are discarded.
-          This is intentional: if the WebSocket consumer is slow, we skip
+          This is intentional: if the WebRTC consumer is slow, we skip
           frames rather than building up a backlog.
     """
 
@@ -29,8 +33,8 @@ class FrameCapture:
         """
         @brief Initialize capture parameters (does not start FFmpeg yet).
         @param display_number The X11 display number to capture (e.g. 99 → ":99").
-        @param width Capture width in pixels.
-        @param height Capture height in pixels.
+        @param width Capture width in pixels (must be even for yuv420p).
+        @param height Capture height in pixels (must be even for yuv420p).
         @param fps Target frame rate for capture (default: 30).
         """
         self.display_number = display_number
@@ -38,16 +42,18 @@ class FrameCapture:
         self.height = height
         self.fps = fps
         self.process = None
-        self._current_frame = None
+        self._current_frame: np.ndarray | None = None
         self._read_task = None
-    
+        ## yuv420p: full-res Y plane + quarter-res U and V planes
+        self._frame_size = width * height * 3 // 2
+
     async def start(self):
         """
         @brief Launch FFmpeg and begin capturing frames in the background.
 
-        Starts FFmpeg with x11grab input and MJPEG output piped to stdout.
-        Spawns two background tasks:
-        - _read_frames: parses JPEG frames from stdout
+        Starts FFmpeg with x11grab input and raw yuv420p output piped to
+        stdout. Spawns two background tasks:
+        - _read_frames: reads fixed-size raw frames from stdout
         - _log_stderr: logs FFmpeg diagnostic output
         """
         cmd = [
@@ -56,9 +62,8 @@ class FrameCapture:
             "-framerate", str(self.fps),                    ## Capture frame rate
             "-video_size", f"{self.width}x{self.height}",   ## Resolution to grab
             "-i", f":{self.display_number}",                ## Which display to capture (e.g. ":99")
-            "-f", "image2pipe",                             ## Output format: pipe individual images
-            "-vcodec", "mjpeg",                             ## Encode each frame as JPEG
-            "-q:v", "5",                                    ## JPEG quality (2=best, 31=worst)
+            "-f", "rawvideo",                               ## Output format: raw frames, no container
+            "-pix_fmt", "yuv420p",                          ## Pixel format video encoders expect
             "-fflags", "nobuffer",                          ## Minimize output buffering for lower latency
             "-an",                                          ## No audio for now
             "pipe:1",
@@ -76,50 +81,27 @@ class FrameCapture:
 
         ## Start reading frames from stdout
         self._read_task = asyncio.create_task(self._read_frames())
-    
+
     async def _read_frames(self):
         """
-        @brief Continuously read FFmpeg stdout and extract JPEG frames.
+        @brief Continuously read fixed-size raw frames from FFmpeg stdout.
 
-        Reads raw bytes into a buffer, then scans for JPEG SOI (0xFFD8)
-        and EOI (0xFFD9) markers. Each complete SOI→EOI range is one
-        JPEG frame. The latest frame is stored in _current_frame.
-
-        @note The buffer is trimmed after each extracted frame to prevent
-        unbounded memory growth.
+        Each frame is exactly _frame_size bytes (yuv420p is uncompressed),
+        so readexactly() yields one complete frame per call. The frame is
+        reshaped to (height * 3/2, width) — the layout that
+        av.VideoFrame.from_ndarray(format="yuv420p") expects.
         """
-        buffer = bytearray()
-        SOI = b"\xff\xd8"   ## JPEG Start of Image marker
-        EOI = b"\xff\xd9"   ## JPEG End of Image marker
-
         try:
             while True:
-                chunk = await self.process.stdout.read(4096)
-                if not chunk:
-                    break
-
-                buffer.extend(chunk)
-
-                while True:
-                    soi_idx = buffer.find(SOI)
-                    if  soi_idx == -1:
-                        buffer.clear()
-                        break
-
-                    eoi_idx = buffer.find(EOI, soi_idx + 2)
-                    if eoi_idx == -1:
-                        ## Have SOI but no EOI yet - trim junk before SOI and wait
-                        if soi_idx > 0:
-                            del buffer[:soi_idx]
-                        break
-
-                    ## Extract complete JPEG frame (SOI through EOI inclusive)
-                    frame = bytes(buffer[soi_idx:eoi_idx + 2])
-                    self._current_frame = frame
-                    del buffer[:eoi_idx + 2]
+                raw = await self.process.stdout.readexactly(self._frame_size)
+                self._current_frame = np.frombuffer(raw, dtype=np.uint8).reshape(
+                    (self.height * 3 // 2, self.width)
+                )
+        except asyncio.IncompleteReadError:
+            logger.info("FFmpeg stdout closed - capture ended")
         except asyncio.CancelledError:
             pass
-    
+
     async def _log_stderr(self):
         """
         @brief Read and log FFmpeg's stderr output for diagnostics.
@@ -136,11 +118,12 @@ class FrameCapture:
                 logger.info(f"FFmpeg: {line.decode().rstrip()}")
         except asyncio.CancelledError:
             pass
-    
-    async def get_frame(self) -> bytes | None:
+
+    def get_frame(self) -> np.ndarray | None:
         """
         @brief Return the most recent captured frame.
-        @return The latest JPEG frame as bytes, or None if no frame captured yet.
+        @return Latest frame as a (height*3/2, width) uint8 yuv420p array,
+                or None if no frame has been captured yet.
         """
         return self._current_frame
 

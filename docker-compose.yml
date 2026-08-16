@@ -15,6 +15,11 @@ services:
       - LETSENCRYPT_HOST=${BACKEND_LETSENCRYPT_HOST}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - VIRTUAL_PORT=8000
+      # game-runner uses host networking (WebRTC), so it's reached via the
+      # host gateway instead of the compose service name
+      - GAME_RUNNER_URL=http://host.docker.internal:9000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
     restart: unless-stopped
@@ -31,8 +36,17 @@ services:
   game-runner:
     build: ./game-runner
     container_name: homeserver-game-runner
-    expose:
-      - "9000"
+    # Only the vars this service needs - never env_file with the whole .env:
+    # it contains VIRTUAL_HOST, and any container carrying that variable gets
+    # added to nginx-proxy's upstream pool for the public domain.
+    environment:
+      - TURN_SECRET=${TURN_SECRET}
+      - SERVER_LAN_IP=${SERVER_LAN_IP}
+    # Host networking so aiortc's dynamic UDP ports are directly reachable -
+    # WebRTC ICE candidates would otherwise advertise unreachable bridge IPs.
+    # Side effects: port 9000 binds on the host (reachable from the LAN),
+    # and the backend reaches this service via host.docker.internal.
+    network_mode: host
     depends_on:
       - backend
     restart: unless-stopped
@@ -49,6 +63,49 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  coturn:
+    # Debian-based image, not -alpine: detect-external-ip needs the openssl
+    # binary, which the alpine variant doesn't ship (external-ip silently
+    # ends up empty and relay candidates advertise the unreachable LAN IP)
+    image: coturn/coturn:4.6
+    container_name: homeserver-coturn
+    # Host networking for the same reason as game-runner: relayed media uses
+    # a range of UDP ports whose advertised addresses must be real.
+    network_mode: host
+    restart: unless-stopped
+    # detect-external-ip ships with the image; coturn is behind NAT so it must
+    # advertise the router's public IP in relay candidates, not its own.
+    # ($$ escapes $ from compose so the container's entrypoint evaluates it.)
+    command:
+      - --listening-port=3478
+      - --fingerprint
+      - --use-auth-secret
+      - --static-auth-secret=${TURN_SECRET}
+      - --realm=hakserver.cc
+      - --external-ip=$$(detect-external-ip)
+      # Fixed relay range so the router can port-forward it (aiortc's own
+      # ports are random, which is why we relay instead of forwarding those).
+      # Must stay identity-mapped with the router rule: external 49160-49200
+      # -> internal 49160-49200 -> here, and with the ufw allow rule.
+      - --min-port=49160
+      - --max-port=49200
+      # An open relay is a tunnel into the LAN: forbid relaying to private
+      # ranges, except the server itself - that's where game-runner lives.
+      - --allowed-peer-ip=${SERVER_LAN_IP}
+      - --denied-peer-ip=10.0.0.0-10.255.255.255
+      - --denied-peer-ip=172.16.0.0-172.31.255.255
+      - --denied-peer-ip=192.168.0.0-192.168.255.255
+      - --denied-peer-ip=127.0.0.0-127.255.255.255
+      - --denied-peer-ip=169.254.0.0-169.254.255.255
+      # Modest abuse limits: max concurrent relay allocations per user / total
+      - --user-quota=8
+      - --total-quota=40
+      - --no-cli
+      - --no-multicast-peers
+    logging:
+      driver: "json-file"
+      options: { max-size: "10m", max-file: "3" }
 
   frontend:
     build: ./frontend

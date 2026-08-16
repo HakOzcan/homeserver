@@ -2,7 +2,8 @@
 @file input.py
 @brief Translates browser input events into X11 commands via xdotool.
 The browser captures keyboard and mouse events and sends them as JSON
-over WebSocket. This module maps browser event names to X11 keysym names
+over a WebRTC DataChannel. This module maps browser event names to X11
+keysym names
 and uses xdotool to inject them into the correct virtual display.
 """
 
