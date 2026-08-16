@@ -24,4 +24,7 @@ class AuthRepository(
         try { authApi.logout() } catch (e: Exception) { /* ignore */ }
         tokenStore.clear()
     }
+
+    /** @brief The signed-in user (an authenticated call — proves the Bearer plumbing). */
+    suspend fun me(): MeResponse = authApi.me()
 }
