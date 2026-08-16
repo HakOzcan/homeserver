@@ -193,8 +193,15 @@ def refresh_token(user=Depends(require_active_user)):
 
 @router.post("/logout")
 def logout(user=Depends(get_current_user), db: Session = Depends(get_db)):
-    """@brief Invalidate the current session by clearing the session token."""
-    db_user = db.query(User.id == user["sub"]).first()
+    """
+    @brief Invalidate the current session by clearing the user's session token.
+    @details The previous implementation called db.query(User.id == user["sub"]),
+             which passes a boolean expression to query() instead of selecting the
+             User row and filtering on it. It therefore never loaded the user, so
+             session_token was left set and the "one active session" guarantee was
+             silently broken. Selecting User and filtering fixes the invalidation.
+    """
+    db_user = db.query(User).filter(User.id == user["sub"]).first()
     if db_user:
         db_user.session_token = None
         db.commit()
