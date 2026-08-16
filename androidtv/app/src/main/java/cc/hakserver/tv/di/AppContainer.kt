@@ -18,6 +18,10 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import cc.hakserver.tv.core.API_BASE
+import cc.hakserver.tv.data.media.MediaApi
+import cc.hakserver.tv.data.media.MediaRepository
+import coil.ImageLoader
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth")
 
@@ -49,6 +53,13 @@ class AppContainer(
 
     private val authApi = retrofit.create(AuthApi::class.java)
 
+    private val mediaApi = retrofit.create(MediaApi::class.java)
+    val mediaRepository = MediaRepository(mediaApi)
+
+    /** @brief Coil loader on the SAME authenticated OkHttp, so poster requests
+     *         carry the Bearer token (and share the refresh path). */
+    val imageLoader = ImageLoader.Builder(context).okHttpClient(okHttp).build()
+
     val authRepository = AuthRepository(authApi, tokenStore)
     private val tokenRefresher = TokenRefresher(tokenStore, authApi, appScope)
 
@@ -58,5 +69,5 @@ class AppContainer(
         tokenRefresher.start()
     }
 
-    private companion object { const val BASE_URL = "https://api.hakserver.cc/api/" }
+    private companion object { const val BASE_URL = "$API_BASE/" }
 }

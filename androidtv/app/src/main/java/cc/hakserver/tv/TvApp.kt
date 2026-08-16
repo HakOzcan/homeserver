@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
  * @details Registered via android:name= ".TvApp". Loads the saved token and starts
  *          the proactive refresher at startup.
  */
-class TvApp : Application() {
+class TvApp : Application(), coil.ImageLoaderFactory {
     lateinit var container: AppContainer
         private set
 
@@ -19,4 +19,7 @@ class TvApp : Application() {
         container = AppContainer(this)
         MainScope().launch { container.initialize() }
     }
+
+    /** @brief Coil picks this up app-wide, so every AsyncImage uses our authed loader. */
+    override fun newImageLoader(): coil.ImageLoader = container.imageLoader
 }
