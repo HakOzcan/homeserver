@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import cc.hakserver.tv.ui.home.HomeScreen
+import cc.hakserver.tv.ui.browse.BrowseScreen
 import cc.hakserver.tv.ui.login.LoginScreen
 
 /**
@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                 when (loggedIn) {
                     null -> Splash()
                     false -> LoginScreen()
-                    true -> HomeScreen()
+                    true -> BrowseScreen()
                 }
             }
         }
