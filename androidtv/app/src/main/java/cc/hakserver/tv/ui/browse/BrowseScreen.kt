@@ -40,19 +40,19 @@ import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 
 @Composable
-fun BrowseScreen(viewModel: BrowseViewModel = viewModel(factory = BrowseViewModel.Factory)) {
+fun BrowseScreen(onItemClick: (Int) -> Unit, viewModel: BrowseViewModel = viewModel(factory = BrowseViewModel.Factory)) {
     val state by viewModel.state.collectAsState()
     Surface(modifier = Modifier.fillMaxSize()) {
         when (val s = state) {
             is BrowseUiState.Loading -> CenterBox { CircularProgressIndicator() }
             is BrowseUiState.Error -> CenterBox { Text(s.message) }
-            is BrowseUiState.Success -> LibraryContent(s, onLogout = viewModel::logout)
+            is BrowseUiState.Success -> LibraryContent(s, onLogout = viewModel::logout, onItemClick = onItemClick)
         }
     }
 }
 
 @Composable
-private fun LibraryContent(data: BrowseUiState.Success, onLogout: () -> Unit) {
+private fun LibraryContent(data: BrowseUiState.Success, onLogout: () -> Unit, onItemClick: (Int) -> Unit) {
     val firstItemFocus = remember { FocusRequester() }
     // Nudge focus onto the first tile once laid out (press Down if it doesn't land).
     LaunchedEffect(Unit) { runCatching { firstItemFocus.requestFocus() } }
@@ -76,7 +76,7 @@ private fun LibraryContent(data: BrowseUiState.Success, onLogout: () -> Unit) {
         data.hero?.let { hero -> item { Hero(hero) } }
 
         itemsIndexed(data.rows) { index, row ->
-            MediaRow(row = row, firstItemFocus = if (index == 0) firstItemFocus else null)
+            MediaRow(row = row, firstItemFocus = if (index == 0) firstItemFocus else null, onItemClick = onItemClick)
         }
     }
 }
@@ -108,7 +108,7 @@ private fun Hero(hero: HeroUi) {
 }
 
 @Composable
-private fun MediaRow(row: RowUi, firstItemFocus: FocusRequester?) {
+private fun MediaRow(row: RowUi, firstItemFocus: FocusRequester?, onItemClick: (Int) -> Unit) {
     Column {
         Text(
             row.title, style = MaterialTheme.typography.titleMedium,
@@ -123,6 +123,7 @@ private fun MediaRow(row: RowUi, firstItemFocus: FocusRequester?) {
                     item = item,
                     modifier = if (index == 0 && firstItemFocus != null)
                         Modifier.focusRequester(firstItemFocus) else Modifier,
+                    onItemClick = onItemClick,
                 )
             }
         }
@@ -130,8 +131,8 @@ private fun MediaRow(row: RowUi, firstItemFocus: FocusRequester?) {
 }
 
 @Composable
-private fun PosterCard(item: CardUi, modifier: Modifier = Modifier) {
-    Card(onClick = { /* Phase 3: open detail */ }, modifier = modifier.width(120.dp)) {
+private fun PosterCard(item: CardUi, modifier: Modifier = Modifier, onItemClick: (Int) -> Unit) {
+    Card(onClick = { onItemClick(item.id) }, modifier = modifier.width(120.dp)) {
         Column {
             Box(modifier = Modifier.size(width = 120.dp, height = 180.dp).background(Color(0xFF2A2A2A))) {
                 AsyncImage(

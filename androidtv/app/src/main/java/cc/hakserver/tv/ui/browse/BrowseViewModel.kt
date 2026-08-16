@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** @brief A poster tile (display-ready: URL already built). */
-data class CardUi(val title: String, val posterUrl: String, val progressPercent: Double? = null)
+data class CardUi(val id: Int, val title: String, val posterUrl: String, val progressPercent: Double? = null)
 
 /** @brief A titled horizontal row of tiles. */
 data class RowUi(val title: String, val items: List<CardUi>)
@@ -53,13 +53,13 @@ class BrowseViewModel(
                 val rows = buildList {
                     if (lib.continueWatching.isNotEmpty()) {
                         add(RowUi("Continue Watching", lib.continueWatching.map {
-                            CardUi(it.title, mediaRepository.posterUrl(it.contentType, it.tmdbId),
+                            CardUi(it.id, it.title, mediaRepository.posterUrl(it.contentType, it.tmdbId),
                                 it.progressPercent)
                         }))
                     }
                     lib.genreRows.forEach { (genre, items) ->
                         add(RowUi(genre, items.map {
-                            CardUi(it.title, mediaRepository.posterUrl(it.contentType, it.tmdbId))
+                            CardUi(it.id, it.title, mediaRepository.posterUrl(it.contentType, it.tmdbId))
                         }))
                     }
                 }

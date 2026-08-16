@@ -15,6 +15,14 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import cc.hakserver.tv.ui.browse.BrowseScreen
 import cc.hakserver.tv.ui.login.LoginScreen
+import android.net.Uri
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 /**
  * @brief Hosts the app and gates between login and home from AuthRepository.isLoggedIn.
@@ -31,7 +39,7 @@ class MainActivity : ComponentActivity() {
                 when (loggedIn) {
                     null -> Splash()
                     false -> LoginScreen()
-                    true -> BrowseScreen()
+                    true -> AppNavHost()
                 }
             }
         }
@@ -44,5 +52,36 @@ private fun Splash() {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Hakserver TV")
         }
+    }
+}
+
+@Composable
+private fun AppNavHost() {
+    val nav = rememberNavController()
+    NavHost(navController = nav, startDestination = "browse") {
+        composable("browse") {
+            BrowseScreen(onItemClick = { id -> nav.navigate("detail/$id") })
+        }
+        composable(
+            "detail/{contentId}",
+            arguments = listOf(navArgument("contentId") { type = NavType.IntType }),
+        ) { entry ->
+            val id = entry.arguments?.getInt("contentId") ?: -1
+            Centered("Detail for content #$id\n(press Back to return to browse)") // → real screen in 3B
+        }
+        composable(
+            "player?url={url}&contentId={contentId}",
+            arguments = listOf(
+                navArgument("url") { type = NavType.StringType; defaultValue = "" },
+                navArgument("contentId") { type = NavType.IntType; defaultValue = -1 },
+            ),
+        ) { _ -> Centered("Player placeholder (3C)") }
+    }
+}
+
+@Composable
+private fun Centered(text: String) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(text) }
     }
 }
