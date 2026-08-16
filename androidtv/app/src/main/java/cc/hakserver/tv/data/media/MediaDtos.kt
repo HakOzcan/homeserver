@@ -3,6 +3,35 @@ package cc.hakserver.tv.data.media
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Serializable
+data class GenreDto(val id: Int, val name: String)
+
+@Serializable
+data class ContentDetailDto(
+    val id: Int,
+    @SerialName("tmdb_id") val tmdbId: Int,
+    @SerialName("content_type") val contentType: String,
+    val title: String,
+    val overview: String? = null,
+    val genres: List<GenreDto>? = null,
+    val rating: Double? = null,
+    @SerialName("release_year") val releaseYear: Int? = null,
+    val runtime: Int? = null,
+)
+
+@Serializable
+data class EpisodeDto(
+    @SerialName("season_number") val seasonNumber: Int,
+    @SerialName("episode_number") val episodeNumber: Int,
+    val title: String? = null,
+    val overview: String? = null,
+    val runtime: Int? = null,
+)
+
+/** @brief GET /media/content/{id}/episodes — keys are season numbers as strings. */
+@Serializable
+data class SeasonsResponse(val seasons: Map<String, List<EpisodeDto>> = emptyMap())
+
 /** @brief One movie/show as returned by /media (only the fields the UI needs). */
 @Serializable
 data class ContentDto(

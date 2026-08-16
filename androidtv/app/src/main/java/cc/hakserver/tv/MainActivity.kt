@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cc.hakserver.tv.ui.detail.DetailScreen
 
 /**
  * @brief Hosts the app and gates between login and home from AuthRepository.isLoggedIn.
@@ -65,9 +66,10 @@ private fun AppNavHost() {
         composable(
             "detail/{contentId}",
             arguments = listOf(navArgument("contentId") { type = NavType.IntType }),
-        ) { entry ->
-            val id = entry.arguments?.getInt("contentId") ?: -1
-            Centered("Detail for content #$id\n(press Back to return to browse)") // → real screen in 3B
+        ) {
+            DetailScreen(onPlay = { url, cId ->
+                nav.navigate("player?url=${Uri.encode(url)}&contentId=$cId")
+            })
         }
         composable(
             "player?url={url}&contentId={contentId}",
@@ -75,7 +77,11 @@ private fun AppNavHost() {
                 navArgument("url") { type = NavType.StringType; defaultValue = "" },
                 navArgument("contentId") { type = NavType.IntType; defaultValue = -1 },
             ),
-        ) { _ -> Centered("Player placeholder (3C)") }
+        ) { entry ->
+            val url = entry.arguments?.getString("url").orEmpty()
+            val cId = entry.arguments?.getInt("contentId") ?: -1
+            Centered("Player (3C)\ncontentId = $cId\n$url")   // 3C swaps in the real ExoPlayer
+        }
     }
 }
 
