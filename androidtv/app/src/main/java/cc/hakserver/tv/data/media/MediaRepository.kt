@@ -10,6 +10,11 @@ class MediaRepository(private val mediaApi: MediaApi) {
     suspend fun getContent(id: Int): ContentDetailDto = mediaApi.getContent(id)
     suspend fun getEpisodes(id: Int): SeasonsResponse = mediaApi.getEpisodes(id)
 
+    suspend fun getProgress(id: Int): ProgressResponse = mediaApi.getProgress(id)
+
+    suspend fun updateProgress(contentId: Int, positionSeconds: Double, durationSeconds: Double) =
+        mediaApi.updateProgress(ProgressUpdate(contentId, positionSeconds, durationSeconds))
+
     /** @brief Full HLS master URL. Note: content_type "movie" maps to the "movies"
      *         folder on disk; TV episodes nest under season/episode. */
     fun hlsMasterUrl(contentType: String, tmdbId: Int, season: Int? = null, episode: Int? = null): String {

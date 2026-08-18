@@ -16,6 +16,7 @@ import androidx.tv.material3.Text
 import cc.hakserver.tv.ui.browse.BrowseScreen
 import cc.hakserver.tv.ui.login.LoginScreen
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.navigation.NavType
@@ -24,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cc.hakserver.tv.ui.detail.DetailScreen
+import cc.hakserver.tv.ui.player.PlayerScreen
 
 /**
  * @brief Hosts the app and gates between login and home from AuthRepository.isLoggedIn.
@@ -77,11 +79,7 @@ private fun AppNavHost() {
                 navArgument("url") { type = NavType.StringType; defaultValue = "" },
                 navArgument("contentId") { type = NavType.IntType; defaultValue = -1 },
             ),
-        ) { entry ->
-            val url = entry.arguments?.getString("url").orEmpty()
-            val cId = entry.arguments?.getInt("contentId") ?: -1
-            Centered("Player (3C)\ncontentId = $cId\n$url")   // 3C swaps in the real ExoPlayer
-        }
+        ) { PlayerScreen() }
     }
 }
 

@@ -65,3 +65,17 @@ data class LibraryResponse(
     @SerialName("recently_added") val recentlyAdded: List<ContentDto> = emptyList(),
     @SerialName("genre_rows") val genreRows: Map<String, List<ContentDto>> = emptyMap(),
 )
+
+@Serializable
+data class ProgressResponse(
+    @SerialName("position_seconds") val positionSeconds: Double = 0.0,
+    @SerialName("duration_seconds") val durationSeconds: Double = 0.0,
+    val completed: Boolean = false,
+)
+
+@Serializable
+data class ProgressUpdate(
+    @SerialName("content_id") val contentId: Int,
+    @SerialName("position_seconds") val positionSeconds: Double,
+    @SerialName("duration_seconds") val durationSeconds: Double,
+)

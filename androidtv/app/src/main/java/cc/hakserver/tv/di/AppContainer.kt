@@ -33,12 +33,12 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
  */
 class AppContainer(
     context: Context,
-    private val appScope: CoroutineScope = CoroutineScope(SupervisorJob()),
+    val appScope: CoroutineScope = CoroutineScope(SupervisorJob()),
 ) {
     private val tokenStore = TokenStore(context.dataStore)
     private val json = Json { ignoreUnknownKeys = true }
 
-    private val okHttp = OkHttpClient.Builder()
+    val okHttp = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor(tokenStore))
         .authenticator(TokenAuthenticator(tokenStore))
         // BASIC only — never HEADERS/BODY here, or the Bearer token lands in logcat.
