@@ -1,58 +1,36 @@
 package cc.hakserver.tv.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.darkColorScheme
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+/**
+ * @brief App-wide dark color scheme mirroring the web client's palette.
+ * @details Uses androidx.tv.material3 (NOT compose.material3) so the roles line up
+ *          with the tv-material3 components the screens use. Dark-only by design —
+ *          the web app has no light mode.
+ */
+private val HakserverDarkColors = darkColorScheme(
+    primary = HakPrimary,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    background = HakBackground,
+    onBackground = HakText,
+    surface = HakSurface,
+    onSurface = HakText,
+    surfaceVariant = HakSurface,
+    onSurfaceVariant = HakMuted,
+    error = HakDanger,
+    onError = Color.White,
 )
 
+/**
+ * @brief Wraps content in the Hakserver dark theme. Use once at the app root.
+ */
 @Composable
-fun HakserverTVTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+fun HakserverTvTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        colorScheme = HakserverDarkColors,
+        content = content,
     )
 }

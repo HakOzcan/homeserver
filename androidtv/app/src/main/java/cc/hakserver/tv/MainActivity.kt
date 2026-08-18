@@ -26,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cc.hakserver.tv.ui.detail.DetailScreen
 import cc.hakserver.tv.ui.player.PlayerScreen
+import cc.hakserver.tv.ui.theme.HakserverTvTheme
 
 /**
  * @brief Hosts the app and gates between login and home from AuthRepository.isLoggedIn.
@@ -37,7 +38,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val authRepository = (application as TvApp).container.authRepository
         setContent {
-            MaterialTheme {
+            HakserverTvTheme {
                 val loggedIn by authRepository.isLoggedIn.collectAsState(initial = null)
                 when (loggedIn) {
                     null -> Splash()
