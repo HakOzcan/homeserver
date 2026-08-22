@@ -19,7 +19,7 @@ class MediaRepository(private val mediaApi: MediaApi) {
      *         folder on disk; TV episodes nest under season/episode. */
     fun hlsMasterUrl(contentType: String, tmdbId: Int, season: Int? = null, episode: Int? = null): String {
         val folder = if (contentType == "movie") "movies" else "tv"
-        val path = if (season != null && episode != null) "$folder/$tmdbId/$season/$episode" else "$folder/$tmdbId"
+        val path = if (season != null && episode != null) "$folder/$tmdbId/%02d/%02d".format(season, episode) else "$folder/$tmdbId"
         return "$API_BASE/media/hls/$path/master.m3u8"
     }
 
