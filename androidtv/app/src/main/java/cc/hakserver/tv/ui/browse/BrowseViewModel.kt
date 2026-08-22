@@ -20,7 +20,7 @@ data class CardUi(val id: Int, val title: String, val posterUrl: String, val pro
 data class RowUi(val title: String, val items: List<CardUi>)
 
 /** @brief The featured banner. */
-data class HeroUi(val title: String, val overview: String?, val backdropUrl: String)
+data class HeroUi(val id: Int, val title: String, val overview: String?, val backdropUrl: String)
 
 /** @brief Browse screen states. */
 sealed interface BrowseUiState {
@@ -47,7 +47,7 @@ class BrowseViewModel(
                 val lib = mediaRepository.getLibrary()
 
                 val hero = lib.hero?.let {
-                    HeroUi(it.title, it.overview, mediaRepository.backdropUrl(it.contentType, it.tmdbId))
+                    HeroUi(it.id, it.title, it.overview, mediaRepository.backdropUrl(it.contentType, it.tmdbId))
                 }
 
                 val rows = buildList {

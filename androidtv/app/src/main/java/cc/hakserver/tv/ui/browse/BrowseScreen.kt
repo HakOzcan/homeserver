@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -53,9 +53,11 @@ fun BrowseScreen(onItemClick: (Int) -> Unit, viewModel: BrowseViewModel = viewMo
 
 @Composable
 private fun LibraryContent(data: BrowseUiState.Success, onLogout: () -> Unit, onItemClick: (Int) -> Unit) {
-    val firstItemFocus = remember { FocusRequester() }
-    // Nudge focus onto the first tile once laid out (press Down if it doesn't land).
-    LaunchedEffect(Unit) { runCatching { firstItemFocus.requestFocus() } }
+    val heroFocus = remember { FocusRequester() }
+    // Focus the hero's Play button once laid out. The hero sits at the top of the
+    // list, so focusing it causes no scroll and the banner stays on screen.
+    // (Focusing a card lower down was the old bug: it scrolled the hero off the top.)
+    LaunchedEffect(Unit) { runCatching { heroFocus.requestFocus() } }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -73,16 +75,18 @@ private fun LibraryContent(data: BrowseUiState.Success, onLogout: () -> Unit, on
             }
         }
 
-        data.hero?.let { hero -> item { Hero(hero) } }
+        data.hero?.let { hero ->
+            item { Hero(hero = hero, playFocus = heroFocus, onDetails = { onItemClick(hero.id) }) }
+        }
 
-        itemsIndexed(data.rows) { index, row ->
-            MediaRow(row = row, firstItemFocus = if (index == 0) firstItemFocus else null, onItemClick = onItemClick)
+        items(data.rows) { row ->
+            MediaRow(row = row, onItemClick = onItemClick)
         }
     }
 }
 
 @Composable
-private fun Hero(hero: HeroUi) {
+private fun Hero(hero: HeroUi, playFocus: FocusRequester, onDetails: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxWidth().height(320.dp).padding(horizontal = 48.dp)
             .background(Color(0xFF1A1A1A)),
@@ -103,12 +107,16 @@ private fun Hero(hero: HeroUi) {
                     modifier = Modifier.fillMaxWidth(0.5f),
                 )
             }
+            Spacer(Modifier.height(16.dp))
+            Button(onClick = onDetails, modifier = Modifier.focusRequester(playFocus)) {
+                Text("▻ Details")
+            }
         }
     }
 }
 
 @Composable
-private fun MediaRow(row: RowUi, firstItemFocus: FocusRequester?, onItemClick: (Int) -> Unit) {
+private fun MediaRow(row: RowUi, onItemClick: (Int) -> Unit) {
     Column {
         Text(
             row.title, style = MaterialTheme.typography.titleMedium,
@@ -118,13 +126,8 @@ private fun MediaRow(row: RowUi, firstItemFocus: FocusRequester?, onItemClick: (
             contentPadding = PaddingValues(horizontal = 48.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            itemsIndexed(row.items) { index, item ->
-                PosterCard(
-                    item = item,
-                    modifier = if (index == 0 && firstItemFocus != null)
-                        Modifier.focusRequester(firstItemFocus) else Modifier,
-                    onItemClick = onItemClick,
-                )
+            items(row.items) { item ->
+                PosterCard(item = item, onItemClick = onItemClick)
             }
         }
     }
