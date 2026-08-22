@@ -1,0 +1,11 @@
+<!-- Ascending bars = "video quality". Plain white so it matches media3's
+     control-bar icons; swap for an HD/4K badge later if you prefer. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4,14h4v6h-4z M10,9h4v11h-4z M16,4h4v16h-4z" />
+</vector>
