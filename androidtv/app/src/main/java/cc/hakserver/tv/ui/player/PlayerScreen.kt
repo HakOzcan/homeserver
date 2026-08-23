@@ -15,6 +15,22 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.TrackSelectionDialogBuilder
 import cc.hakserver.tv.R
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.view.WindowManager
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalContext
+
+/** Walk the Compose context wrappers to find the host Activity (for its window). */
+private fun Context.findActivity(): Activity? {
+    var ctx: Context = this
+    while (ctx is ContextWrapper) {
+        if (ctx is Activity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
+}
 
 /**
  * @brief Fullscreen player: a media3 PlayerView (default D-pad controls, a
@@ -23,6 +39,12 @@ import cc.hakserver.tv.R
  */
 @Composable
 fun PlayerScreen(viewModel: PlayerViewModel = viewModel(factory = PlayerViewModel.Factory)) {
+    val context = LocalContext.current
+    DisposableEffect(Unit) {
+        val window = context.findActivity()?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
+    }
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { ctx ->
@@ -32,7 +54,6 @@ fun PlayerScreen(viewModel: PlayerViewModel = viewModel(factory = PlayerViewMode
                 setShowSubtitleButton(true)
                 setBackgroundColor(Color.BLACK)
                 setShutterBackgroundColor(Color.BLACK)
-                keepScreenOn = true
                 addVideoQualityButton()
             }
         },
