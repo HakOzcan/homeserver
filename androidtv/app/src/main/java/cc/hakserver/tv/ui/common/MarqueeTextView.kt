@@ -2,23 +2,17 @@ package cc.hakserver.tv.ui.common
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.TextView
 
 /**
  * @brief A TextView whose marquee (scrolling ellipsize) is ALWAYS active.
  *
- * @details Android only animates `android:ellipsize="marquee"` while a view is
- *          focused or selected. In media3's settings popup the *row* receives
- *          focus, not the inner text view, so a normal TextView would never
- *          scroll. We force it two ways:
- *           - `isFocused()` always reports true, so the marquee's start gate
- *             passes when the text is laid out / re-bound.
- *           - on (re)attach we set `isSelected = true`, which kicks the
- *             animation for recycled rows scrolled back into view.
- *
- *          Pair with `singleLine="true"`, `ellipsize="marquee"`, and
- *          `marqueeRepeatLimit="marquee_forever"` in XML. Extends the plain
- *          framework TextView (not AppCompat) since appcompat isn't a dependency.
+ * @details Android only animates `ellipsize="marquee"` on a view that reports
+ *          focus or selection. In media3's popup the *row* holds focus, not this
+ *          child, so we fake focus AND re-arm selection whenever the row is
+ *          (re)bound with new text — RecyclerView reuses rows, and the text often
+ *          arrives after the view is attached, so a single kick isn't enough.
  */
 class MarqueeTextView @JvmOverloads constructor(
     context: Context,
@@ -30,6 +24,20 @@ class MarqueeTextView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        Log.d(TAG, "attached: \"$text\"")   // TEMP diagnostic — remove once verified
+        reArmMarquee()
+    }
+
+    override fun onTextChanged(text: CharSequence?, start: Int, before: Int, after: Int) {
+        super.onTextChanged(text, start, before, after)
+        reArmMarquee()
+    }
+
+    // Toggling selection forces TextView to (re)start the marquee.
+    private fun reArmMarquee() {
+        isSelected = false
         isSelected = true
     }
+
+    private companion object { const val TAG = "HakMarquee" }
 }

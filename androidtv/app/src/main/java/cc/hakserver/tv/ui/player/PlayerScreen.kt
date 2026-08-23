@@ -32,6 +32,7 @@ fun PlayerScreen(viewModel: PlayerViewModel = viewModel(factory = PlayerViewMode
                 setShowSubtitleButton(true)
                 setBackgroundColor(Color.BLACK)
                 setShutterBackgroundColor(Color.BLACK)
+                keepScreenOn = true
                 addVideoQualityButton()
             }
         },
