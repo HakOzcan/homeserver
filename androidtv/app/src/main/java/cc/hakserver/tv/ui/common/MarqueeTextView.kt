@@ -33,6 +33,11 @@ class MarqueeTextView @JvmOverloads constructor(
         reArmMarquee()
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) post { reArmMarquee() }   // width is known now
+    }
+
     // Toggling selection forces TextView to (re)start the marquee.
     private fun reArmMarquee() {
         isSelected = false

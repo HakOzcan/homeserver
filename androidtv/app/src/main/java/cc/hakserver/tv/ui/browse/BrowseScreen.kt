@@ -38,10 +38,24 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 @Composable
 fun BrowseScreen(onItemClick: (Int) -> Unit, viewModel: BrowseViewModel = viewModel(factory = BrowseViewModel.Factory)) {
     val state by viewModel.state.collectAsState()
+    // Re-fetch whenever this destination returns to the foreground (e.g. back from the
+    // player), so Continue Watching reflects the progress just written.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refresh()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     Surface(modifier = Modifier.fillMaxSize()) {
         when (val s = state) {
             is BrowseUiState.Loading -> CenterBox { CircularProgressIndicator() }

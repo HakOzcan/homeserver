@@ -40,8 +40,18 @@ class BrowseViewModel(
 
     init { load() }
 
-    fun load() {
-        _state.value = BrowseUiState.Loading
+    init { load() }   // keep — guarantees the first load regardless of resume timing
+
+    /** @brief First load / explicit retry: show the spinner. */
+    fun load() = fetch(showLoading = true)
+
+    /** @brief Silent re-fetch on resume: keep current content visible (no spinner
+     *         flash) and swap it only once fresh data arrives — so Continue Watching
+     *         reflects progress written by the player. */
+    fun refresh() = fetch(showLoading = false)
+
+    private fun fetch(showLoading: Boolean) {
+        if (showLoading) _state.value = BrowseUiState.Loading
         viewModelScope.launch {
             try {
                 val lib = mediaRepository.getLibrary()
@@ -65,7 +75,11 @@ class BrowseViewModel(
                 }
                 _state.value = BrowseUiState.Success(hero, rows)
             } catch (e: Exception) {
-                _state.value = BrowseUiState.Error("Couldn't load your library.")
+                // Don't wipe good content on a silent refresh; only surface an error if
+                // there's nothing on screen yet.
+                if (_state.value !is BrowseUiState.Success) {
+                    _state.value = BrowseUiState.Error("Couldn't load your library.")
+                }
             }
         }
     }
