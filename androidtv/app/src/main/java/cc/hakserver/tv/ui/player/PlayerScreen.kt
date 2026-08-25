@@ -71,6 +71,7 @@ fun PlayerScreen(viewModel: PlayerViewModel = viewModel(factory = PlayerViewMode
  *          player's video track group and applies the pick to
  *          `player.trackSelectionParameters` for us.
  */
+@androidx.annotation.OptIn(UnstableApi::class)
 private fun PlayerView.addVideoQualityButton() {
     val row = findViewById<LinearLayout>(androidx.media3.ui.R.id.exo_basic_controls) ?: return
     val button = ImageButton(
@@ -84,6 +85,26 @@ private fun PlayerView.addVideoQualityButton() {
             TrackSelectionDialogBuilder(context, "Video quality", activePlayer, C.TRACK_TYPE_VIDEO)
                 .setAllowAdaptiveSelections(true) // keep an "Auto" (adaptive) option
                 .setShowDisableOption(false)      // never let the user turn video off entirely
+                // media3's DefaultTrackNameProvider labels renditions with raw
+                // "1920x1080, 2.5 Mb". Height is what viewers actually recognise,
+                // so relabel each track "1080p" and disambiguate same-height
+                // renditions (our backend serves multi-codec: H.264 + HEVC) by
+                // appending the codec family.
+                .setTrackNameProvider { format ->
+                    val height = format.height
+                    if (height <= 0) {
+                        "Unknown"
+                    } else {
+                        val codec = format.codecs?.let { c ->
+                            when {
+                                c.startsWith("hvc1") || c.startsWith("hev1") -> " HEVC"
+                                c.startsWith("avc") -> " H.264"
+                                else -> ""
+                            }
+                        } ?: ""
+                        "${height}p$codec"
+                    }
+                }
                 .build()
                 .show()
         }
