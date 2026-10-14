@@ -18,6 +18,26 @@ Live at `hakserver.cc` (private instance).
 | `nginx-proxy` + `acme-companion` | jwilder/nginx-proxy | Reverse proxy with automatic Let's Encrypt certificates |
 | `cloudflare-ddns` | oznu/cloudflare-ddns | Keeps the domain pointed at the home connection's dynamic IP |
 
+## Android TV client
+
+`androidtv/` — a native Kotlin app for Android TV and Fire TV, talking to the same
+FastAPI backend as the web SPA (`api.hakserver.cc`).
+
+| Area | Implementation |
+|---|---|
+| UI | Jetpack Compose for TV (`androidx.tv.material3`) — D-pad navigation with
+explicit initial-focus handling per screen |
+| Playback | Media3 / ExoPlayer via `HlsMediaSource`, with every manifest, segment
+and subtitle fetched through the authenticated OkHttp client |
+| Quality selector | Relabels media3's raw `1920x1080, 2.5 Mb` renditions as `1080p
+HEVC` / `1080p H.264`, disambiguating same-height tracks from the multi-codec HLS
+ladder |
+| Architecture | MVVM — five ViewModels over `AuthRepository` / `MediaRepository`,
+manual DI through `AppContainer` |
+| Auth | Transparent access-token refresh via an OkHttp `Authenticator` |
+
+minSdk 28. Developed and tested against real Fire TV hardware.
+
 ## Cloud gaming architecture
 
 Games run server-side, each session isolated on its own virtual X11 display.
