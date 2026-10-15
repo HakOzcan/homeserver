@@ -25,15 +25,10 @@ FastAPI backend as the web SPA (`api.hakserver.cc`).
 
 | Area | Implementation |
 |---|---|
-| UI | Jetpack Compose for TV (`androidx.tv.material3`) — D-pad navigation with
-explicit initial-focus handling per screen |
-| Playback | Media3 / ExoPlayer via `HlsMediaSource`, with every manifest, segment
-and subtitle fetched through the authenticated OkHttp client |
-| Quality selector | Relabels media3's raw `1920x1080, 2.5 Mb` renditions as `1080p
-HEVC` / `1080p H.264`, disambiguating same-height tracks from the multi-codec HLS
-ladder |
-| Architecture | MVVM — five ViewModels over `AuthRepository` / `MediaRepository`,
-manual DI through `AppContainer` |
+| UI | Jetpack Compose for TV (`androidx.tv.material3`) — D-pad navigation with explicit initial-focus handling per screen |
+| Playback | Media3 / ExoPlayer via `HlsMediaSource`, with every manifest, segment and subtitle fetched through the authenticated OkHttp client |
+| Quality selector | Relabels media3's raw `1920x1080, 2.5 Mb` renditions as `1080p HEVC` / `1080p H.264`, disambiguating same-height tracks from the multi-codec HLS ladder |
+| Architecture | MVVM — five ViewModels over `AuthRepository` / `MediaRepository`, manual DI through `AppContainer` |
 | Auth | Transparent access-token refresh via an OkHttp `Authenticator` |
 
 minSdk 28. Developed and tested against real Fire TV hardware.
@@ -94,7 +89,7 @@ and input flow directly between browser and game-runner.
 ## Deployment
 
 ```bash
-git clone <repo> && cd homeserver
+git clone https://github.com/HakOzcan/homeserver.git && cd homeserver
 cp .env.example .env   # fill in values; see below
 docker compose up -d --build
 ```
