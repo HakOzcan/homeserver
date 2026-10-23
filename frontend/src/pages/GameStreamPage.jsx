@@ -60,9 +60,13 @@ export default function GameStreamPage() {
                     api.post("/gaming/sessions", { game_id: gameId }),
                     api.get("/gaming/webrtc/ice-config"),
                 ]);
-                if (canceled) return;
-
+                
                 const { session_id } = res.data;
+                if (canceled) {
+                    // We left the page while the session was being created, so the cleanup ran before this id existed - stop it here.
+                    api.delete(`/gaming/sessions/${session_id}`).catch(() => {});
+                    return;
+                }
                 sessionIdRef.current = session_id;
 
                 // Step 2: Build the peer connection. Everything that must be

@@ -7,7 +7,10 @@ and defines REST API endpoints for health checks, game catalog,
 and session management. This is the file Uvicorn runs inside the container
 """
 
+import asyncio
 import logging
+
+from requests import session
 
 ## Configure logging before importing app modules so their loggers inherit this config
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +30,37 @@ app = FastAPI(title="Game Runner", docs_url=None, redoc_url=None, openapi_url=No
 
 ## Mount the WebRTC router (provides /webrtc/offer/{session_id})
 app.include_router(webrtc_router)
+
+logger = logging.getLogger(__name__)
+
+## @brief Seconds a new session gets for its browser to finish connecting.
+## @details Setup normally takes a few seconds, and the backend gives up on
+##          an offer after 30s. A tab that closes before its offer arrives
+##          never creates a peer connection, so no ICE timeout will ever
+##          fire for it - this deadline is the only thing that reclaims it.
+CONNECT_DEADLINE = 60
+
+## @brief Strong references to pending deadline tasks.
+## @details asyncio keeps only weak references to tasks, so a task nobody
+##          holds can be garbage-collected before it finishes.
+_deadline_tasks: set[asyncio.Task] = set()
+
+async def _expire_if_never_connected(session_id: str):
+    """
+    @brief Stop a session whose browser never connected.
+    @param session_id UUID of the session to check once the deadline passes.
+
+    The game process starts only when the WebRTC peer reaches "connected",
+    so a session still without one after CONNECT_DEADLINE was abandoned
+    during setup. Tears it down exactly like DELETE /sessions/{id} does.
+    """
+    await asyncio.sleep(CONNECT_DEADLINE)
+    session = session_manager.get_session(session_id)
+    if session is None or session.game_process is not None:
+        return  ## already stopped, or a browser connected - nothing to do
+    logger.info(f"[{session_id}] No browser connected within {CONNECT_DEADLINE}s -reclaiming session")
+    await close_peer(session_id)
+    await session_manager.stop_session(session_id)
 
 @app.get("/health")
 async def health():
@@ -82,6 +116,12 @@ async def create_sessions(data: dict):
         return {"error": "Game not found"}, 404
     
     session =  await session_manager.create_session(game, user_id)
+
+    ## Start the clock now - the browser may vanish before it ever connects
+    task = asyncio.create_task(_expire_if_never_connected(session.session_id))
+    _deadline_tasks.add(task)
+    task.add_done_callback(_deadline_tasks.discard)
+    
     return {"session_id": session.session_id, "status": session.status}
 
 @app.delete("/sessions/{session_id}")
