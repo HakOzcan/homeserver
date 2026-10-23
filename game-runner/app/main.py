@@ -10,8 +10,6 @@ and session management. This is the file Uvicorn runs inside the container
 import asyncio
 import logging
 
-from requests import session
-
 ## Configure logging before importing app modules so their loggers inherit this config
 logging.basicConfig(level=logging.INFO)
 
