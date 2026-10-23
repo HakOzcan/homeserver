@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
-sqlalchemy
+# 2.1 changed the default postgresql:// driver to psycopg 3; we use psycopg2
+sqlalchemy>=2.0,<2.1
 psycopg2-binary
 python-jose[cryptography]
 passlib[bcrypt]
