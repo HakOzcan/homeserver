@@ -1,0 +1,15 @@
+# What game-runner asks for. requirements.txt is the lock generated from it;
+# the Dockerfile installs the lock, never this file.
+# To upgrade on purpose, run on the server from the repo root (drop the "# "):
+#   docker run --rm -v "$PWD/game-runner:/g:ro" -w /g python:3.11-slim \
+#     sh -c "pip install -q -r requirements.in && pip freeze" \
+#     > game-runner/requirements.txt
+# then put the "# Generated from..." line back at the top of requirements.txt.
+requirements.in && pip freeze" > game-runner/requirements.txt
+fastapi
+uvicorn[standard]
+pygame
+pillow
+# pinned: webrtc.py tunes bitrate via aiortc.codecs.vpx internals
+aiortc==1.14.0
+numpy
