@@ -5,7 +5,6 @@
 #     sh -c "pip install -q -r requirements.in && pip freeze" \
 #     > game-runner/requirements.txt
 # then put the "# Generated from..." line back at the top of requirements.txt.
-requirements.in && pip freeze" > game-runner/requirements.txt
 fastapi
 uvicorn[standard]
 pygame
