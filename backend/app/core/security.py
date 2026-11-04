@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from jose import JWTError, jwt
+import jwt
+from jwt import InvalidTokenError
 from .config import settings
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -20,7 +21,7 @@ def verify_access_token(token: str):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]) # Decode the payload with key and algorithm and return it 
         return payload # Contains "sub" (email) and other claims
-    except JWTError: # Return none if cannot decode it properly
+    except InvalidTokenError: # Return none if cannot decode it properly
         return None
 
 def create_activation_token(email: str) -> str:
@@ -34,7 +35,7 @@ def create_activation_token(email: str) -> str:
     return encoded_activation_token
 
 def verify_activation_token(token:str) -> str:
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     if payload.get("type") != "activation":
         raise ValueError("Invalid token type")
     email = payload.get("sub")
@@ -43,7 +44,7 @@ def verify_activation_token(token:str) -> str:
     return email
 
 def extract_email_from_expired_token(token:str) -> str:
-    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM, options={"verify_exp": False})
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={"verify_exp": False})
     if payload.get("type") != "activation":
         raise ValueError("Invalid token type")
     email = payload.get("sub")
