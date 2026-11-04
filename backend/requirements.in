@@ -1,16 +1,21 @@
 # What the backend asks for. requirements.txt is the lock generated from it;
 # the Dockerfile installs the lock, never this file.
-# To upgrade on purpose, run on the server from the repo root (drop the "# "):
-#   docker run --rm -v "$PWD/backend:/b:ro" -w /b python:3.11-slim \
-#     sh -c "pip install -q -r requirements.in && pip freeze" \
-#     > backend/requirements.txt
-# then put the "# Generated from..." line back at the top of requirements.txt.
+# After editing this file, run on the server from the repo root (drop "# "):
+#   docker run --rm -v "$PWD/backend:/b:ro" -w /b python:3.11-slim sh -c \
+#     "echo '# Generated from requirements.in - do not edit by hand.' && \
+#     pip install -q -r requirements.in -c requirements.txt && pip freeze" \
+#     > ~/backend-lock.txt
+#   diff backend/requirements.txt ~/backend-lock.txt
+# then copy ~/backend-lock.txt over requirements.txt and commit it.
+# "-c requirements.txt" holds every package at its locked version, so only the
+# packages you add or remove here change. Leave it out to upgrade everything.
 fastapi
 uvicorn[standard]
 # 2.1 changed the default postgresql:// driver to psycopg 3; we use psycopg2
 sqlalchemy>=2.0,<2.1
 psycopg2-binary
-python-jose[cryptography]
+# was python-jose, which has unfixed advisories and pulls in RSA/EC libraries
+pyjwt
 passlib[bcrypt]
 bcrypt==3.2.2
 python-dotenv
