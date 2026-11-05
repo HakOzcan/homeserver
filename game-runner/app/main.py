@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pathlib import Path
 from app.registry import registry
-from app.session import session_manager
+from app.session import session_manager, SessionLimitError
 from app.webrtc import router as webrtc_router, close_peer
 
 ## @brief FastAPI application instance.
@@ -101,9 +101,11 @@ async def create_sessions(data: dict):
     """
     @brief Create a new game session.
     @param data JSON body with "game_id" and "user_id" fields.
-    @return JSON with session_id and status, or error if game not found.
+    @return JSON with session_id and status.
+    @throws HTTPException 404 if the game is unknown, 503 if every slot is taken.
 
-    This triggers the full startup sequence: Xvfb -> game -> FFmpeg -> input.
+    Starts the session's display, capture and input (Xvfb -> FFmpeg -> input).
+    The game itself launches later, once the browser's WebRTC connection is up.
     The returned session_id is what the frontend uses to negotiate WebRTC.
     """
     game_id = data["game_id"]
@@ -111,10 +113,13 @@ async def create_sessions(data: dict):
 
     game = registry.get_game(game_id)
     if not game:
-        return {"error": "Game not found"}, 404
-    
-    session =  await session_manager.create_session(game, user_id)
+        raise HTTPException(status_code=404, detail="Game not found")
 
+    try:
+        session = await session_manager.create_session(game, user_id)
+    except SessionLimitError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    
     ## Start the clock now - the browser may vanish before it ever connects
     task = asyncio.create_task(_expire_if_never_connected(session.session_id))
     _deadline_tasks.add(task)
@@ -127,7 +132,8 @@ async def stop_session(session_id: str):
     """
     @brief Stop a running game session and release its resources.
     @param session_id UUID of the session to stop.
-    @return JSON confirming stopped status, or error if not found.
+    @return JSON confirming stopped status.
+    @throws HTTPException 404 if no such session exists.
 
     Closes the session's WebRTC peer connection first so the browser
     sees the stream end immediately, then tears down the session.
@@ -135,7 +141,7 @@ async def stop_session(session_id: str):
     await close_peer(session_id)
     success = await session_manager.stop_session(session_id)
     if not success:
-        return{"error": "Session not found"}
+        raise HTTPException(status_code=404, detail="Session not found")
     return {"session": "stopped"}
 
 @app.get("/sessions")
