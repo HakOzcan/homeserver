@@ -226,8 +226,11 @@ export default function GameStreamPage() {
     // Stop button handler
     const handleStop = async () => {
         if (pcRef.current) pcRef.current.close();
-        if (sessionIdRef.current) {
-            await api.delete(`/gaming/sessions/${sessionIdRef.current}`).catch(() => {});
+        const sessionId = sessionIdRef.current;
+        // Forget the id first, so the unmount cleanup won't stop it again.
+        sessionIdRef.current = null;
+        if (sessionId) {
+            await api.delete(`/gaming/sessions/${sessionId}`).catch(() => {});
         }
         navigate("/games");
     };

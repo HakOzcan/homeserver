@@ -67,8 +67,10 @@ async def stop_session(session_id: str, user=Depends(require_active_user)):
     """
     try:
         return await service.stop_session(session_id)
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail="Failed to stop session")
     except Exception:
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise HTTPException(status_code=503, detail="Game runner unavailable")
 
 @router.get("/sessions")
 async def list_sessions(user=Depends(require_active_user)):

@@ -26,6 +26,13 @@ MAX_SESSIONS = 3
 ##          the real display(if any, which there is not), so we start high to avoid conflicts.
 BASE_DISPLAY = 99
 
+class SessionLimitError(RuntimeError):
+    """
+    @brief Raised when all MAX_SESSIONS slots are taken.
+    @details Its own type so the API can answer "busy, try again later" (503) instead of treating it
+             like a crash (500).
+    """
+
 class GameSession:
     """
     @brief Represent a single running game session.
@@ -248,14 +255,14 @@ class SessionManager:
         @param game Game dictionary from the registry.
         @param user_id ID of the user requesting the session.
         @return The started GameSession instance.
-        @throws RuntimeError If max sessions reached, no displays available,
-                or session fails to start.
+        @throws SessionLimitError If MAX_SESSIONS sessions are already running.
+        @throws RuntimeError If no display is free or the session fails to start.
 
         @note If start() fails, the display and session are cleaned up
               automatically so we don't leak resources.
         """
         if len(self.sessions) >= MAX_SESSIONS:
-            raise RuntimeError("Maximum concurrent sessions reached")
+            raise SessionLimitError("Maximum concurrent sessions reached")
         
         display = self._allocate_display()
         if display is None:
