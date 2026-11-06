@@ -22,7 +22,7 @@ async def _require_owner(session_id: str, user) -> None:
     @brief Stop the request unless the caller owns the session.
     @param session_id UUID of the session the request acts on.
     @param user The authenticated user (from require_active_user).
-    @throws HTTPException 404 if the session is mission OR someone else's -
+    @throws HTTPException 404 if the session is missing OR someone else's -
             the same answer, so a stranger can't tell the two apart.
             503 if game-runner can't be reached.
     """
