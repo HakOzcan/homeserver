@@ -225,13 +225,15 @@ export default function GameStreamPage() {
 
     // Stop button handler
     const handleStop = async () => {
-        if (pcRef.current) pcRef.current.close();
         const sessionId = sessionIdRef.current;
         // Forget the id first, so the unmount cleanup won't stop it again.
         sessionIdRef.current = null;
+        // Stop the session first, then hang up: hanging up first makes
+        // game-runner stop it on its own, and this DELETE races that.
         if (sessionId) {
             await api.delete(`/gaming/sessions/${sessionId}`).catch(() => {});
         }
+        if (pcRef.current) pcRef.current.close();
         navigate("/games");
     };
 
