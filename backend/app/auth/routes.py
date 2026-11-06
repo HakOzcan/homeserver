@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Request, Response
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from jwt import ExpiredSignatureError, InvalidTokenError
 from app.core.security import create_access_token, create_activation_token, verify_activation_token, extract_email_from_expired_token
 from app.db.database import get_db
 from app.db.models import User
@@ -13,6 +14,10 @@ from datetime import datetime, timedelta, timezone
 import uuid
 
 RESEND_COOLDOWN_SECONDS = 120
+
+# Shown word for word on the frontend's verify page
+LINK_EXPIRED = "This link has expired. Please request a new one."
+LINK_INVALID = "This link is invalid or incomplete."
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -88,7 +93,10 @@ def register(request: schemas.UserCreate, db: Session = Depends(get_db)): # Try 
 
 @router.post("/resend-verification")
 def resend_verification_email(token: str, db: Session = Depends(get_db), response: Response = None):
-    email = extract_email_from_expired_token(token)
+    try:
+        email = extract_email_from_expired_token(token)
+    except InvalidTokenError:
+        raise HTTPException(status_code=400, detail=LINK_INVALID)
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
@@ -144,7 +152,12 @@ def get_password_policy():
 
 @router.get("/verify")
 def verify_email(token: str, db: Session = Depends(get_db)):
-    email = verify_activation_token(token)
+    try:
+        email = verify_activation_token(token)
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=410, detail=LINK_EXPIRED)
+    except InvalidTokenError:
+        raise HTTPException(status_code=400, detail=LINK_INVALID)
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
