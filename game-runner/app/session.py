@@ -88,7 +88,7 @@ class GameSession:
 
         ## --- Step 1: Start Xvfb (virtual framebuffer) ---
         logger.info(f"[{self.session_id}] Starting Xvfb on display {display} ({self.width}x{self.height})")
-        ## No stdout/stderr pipes: the output goes straight to the contaioner log. A pipe nobody reads fills up at 64 KB,
+        ## No stdout/stderr pipes: the output goes straight to the container log. A pipe nobody reads fills up at 64 KB,
         ## and the process then freezes on its next write.
         self.xvfb_process = subprocess.Popen(
             [
@@ -193,7 +193,7 @@ class GameSession:
                 proc.terminate()
                 try:
                     ## A plain wait() blocks the event loop - every other
-                    ## sesion's stream and input - until the process exits.
+                    ## session's stream and input - until the process exits.
                     await asyncio.to_thread(proc.wait, 3)
                 except subprocess.TimeoutExpired:
                     proc.kill()
