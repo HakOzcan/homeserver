@@ -151,3 +151,19 @@ async def list_sessions():
     @return List of session metadata dictionaries.
     """
     return session_manager.get_active_sessions()
+
+@app.get("/sessions/{session_id}")
+async def get_session(session_id: str):
+    """
+    @brief Return one session's metadata, including its owner.
+    @param session_id UUID of the session.
+    @return The session's dictionary, same shape as a GET /sessions entry.
+    @throws HTTPException 404 if no such session exists.
+    
+    The backend calls this to check who owns a session before it forwards
+    a DELETE or a WebRTC offer for it.
+    """
+    session = session_manager.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session.to_dict()
