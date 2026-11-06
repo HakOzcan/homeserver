@@ -230,10 +230,11 @@ async def webrtc_offer(session_id: str, offer: Offer):
         the player sees it from its first frame instead of joining a game
         that has been running unwatched through ICE negotiation.
 
-        WebRTC has no explicit close message from the browser; when the
-        user leaves, the connection transitions to "failed" after consent
-        checks time out. Mirrors the old WebSocket behavior of stopping
-        the session on disconnect.
+        When the browser closes its side (End Game, leaving the page), its
+        DTLS close alert makes aiortc close ours too: "closed". If the
+        browser just vanishes, consent checks time out after ~30 s:
+        "failed". Either way the session stops, like the old WebSocket did
+        on disconnect.
         """
         logger.info(f"[{session_id}] WebRTC connection state: {pc.connectionState}")
         if pc.connectionState == "connected":
@@ -246,14 +247,34 @@ async def webrtc_offer(session_id: str, offer: Offer):
             await _teardown()
 
     async def _teardown():
-        _pcs.pop(session_id, None)
+        """
+        @brief Stop the session, if this peer is still the current one.
+        
+        A re-offer replaces the peer, and closing the old one fires its
+        "closed" event. Without this check, that event would stop the 
+        session the new peer now serves. The same check skips the extra
+        teardown after close_peer() or a "failed" -> close(), so the
+        session is stopped only once.
+        """
+        if _pcs.get(session_id) is not pc:
+            return
+        _pcs.get(session_id, None)
         await pc.close()
         await session_manager.stop_session(session_id)
 
-    await pc.setRemoteDescription(RTCSessionDescription(sdp=offer.sdp, type=offer.type))
-    answer = await pc.createAnswer()
-    ## Blocks until ICE gathering completes - answer includes all candidates
-    await pc.setLocalDescription(answer)
+    try:
+        await pc.setRemoteDescription(
+            RTCSessionDescription(sdp=offer.sdp, type=offer.type)
+        )
+        answer = await pc.createAnswer()
+        ## Blocks until ICE gathering is done - he answer has all candidates.
+        await pc.setLocalDescription(answer)
+    except Exception:
+        ## Without a working peer nothingwould ever stop this session.
+        ## (after a re-offer the old peer is already gone), so end it now.
+        logger.exception(f"[{session_id}] Could not answer the offer")
+        await _teardown()
+        raise HTTPException(status_code=400, detail="Invalid offer")
 
     logger.info(f"[{session_id}] WebRTC answer created")
     return {"sdp": pc.localDescription.sdp, "type": pc.localDescription.type}
