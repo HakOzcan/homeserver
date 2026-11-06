@@ -258,7 +258,7 @@ async def webrtc_offer(session_id: str, offer: Offer):
         """
         if _pcs.get(session_id) is not pc:
             return
-        _pcs.get(session_id, None)
+        _pcs.pop(session_id, None)
         await pc.close()
         await session_manager.stop_session(session_id)
 
@@ -267,10 +267,10 @@ async def webrtc_offer(session_id: str, offer: Offer):
             RTCSessionDescription(sdp=offer.sdp, type=offer.type)
         )
         answer = await pc.createAnswer()
-        ## Blocks until ICE gathering is done - he answer has all candidates.
+        ## Blocks until ICE gathering is done - the answer has all candidates.
         await pc.setLocalDescription(answer)
     except Exception:
-        ## Without a working peer nothingwould ever stop this session.
+        ## Without a working peer nothing would ever stop this session.
         ## (after a re-offer the old peer is already gone), so end it now.
         logger.exception(f"[{session_id}] Could not answer the offer")
         await _teardown()
