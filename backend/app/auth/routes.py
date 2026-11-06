@@ -15,7 +15,7 @@ import uuid
 
 RESEND_COOLDOWN_SECONDS = 120
 
- # Shown word for word on the frontend's verify page
+# Shown word for word on the frontend's verify page
 LINK_EXPIRED = "This link has expired. Please request a new one."
 LINK_INVALID = "This link is invalid or incomplete."
 
