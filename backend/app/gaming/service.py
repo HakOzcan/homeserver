@@ -147,3 +147,21 @@ async def get_sessions() -> list[dict]:
         resp = await client.get(f"{GAME_RUNNER_URL}/sessions")
         resp.raise_for_status()
         return resp.json()
+
+async def get_session(session_id: str) -> dict | None:
+    """
+    @brief Fetch one session's metadata from game-runner.
+    @param session_id UUID of the session.
+    @return The session's metadata dict (including user_id), or None if
+            game-runner has no such session.
+    @throws httpx.HTTPStatusError on any other error status.
+    
+    A missing session is a normal answer here, not an error, so it comes
+    back as None - like dict.get().
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await.client.get(f"{GAME_RUNNER_URL}/sessions/{session_id}")
+        if resp.status_code == 404:
+            return None
+        resp.raise_for_status()
+        return resp.json()
