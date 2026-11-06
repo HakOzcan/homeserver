@@ -135,7 +135,7 @@ class GameSession:
         env = {
             **os.environ,
             "DISPLAY": display,                 ## Tell the game which virtual display to use
-            "SDL_AUDIODRIVER": "dummy",         ## No audio hardware in Docker (for now) - use dommy driver
+            "SDL_AUDIODRIVER": "dummy",         ## No audio hardware in Docker (for now) - use dummy driver
             "GAME_WIDTH": str(self.width),      ## Pass resolution to the game script
             "GAME_HEIGHT": str(self.height),
         }
@@ -158,20 +158,19 @@ class GameSession:
             raise ValueError(f"Unknown game type: {game_type}")
 
         logger.info(f"[{self.session_id}] Starting game: {cmd}")
+
+        ## Output goes to the container log, like Xvfb's (see start())
         self.game_process = subprocess.Popen(
             cmd,
             env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
         )
         await asyncio.sleep(0.5)
 
-        ## Check if the game crashed immediately
-        if self.game_process.poll() is not None:
-            stderr = self.game_process.stderr.read().decode()
-            stdout = self.game_process.stdout.read().decode()
-            logger.error(f"[{self.session_id}] Game exited immediately. stderr: {stderr} stdout: {stdout}")
-            raise RuntimeError(f"Game failed to start: {stderr}")
+        ## Check if the game crashed immediately (its traceback is in the log)
+        code = self.game_process.poll()
+        if code is not None:
+            logger.error(f"[{self.session_id}] Game exited with code {code}")
+            raise RuntimeError(f"Game failed to start (exit code {code})")
         logger.info(f"[{self.session_id}] Game started (pid={self.game_process.pid})")
 
     async def stop(self):
@@ -193,7 +192,9 @@ class GameSession:
             if proc and proc.poll() is None:
                 proc.terminate()
                 try:
-                    proc.wait(timeout=3)
+                    ## A plain wait() blocks the event loop - every other
+                    ## sesion's stream and input - until the process exits.
+                    await asyncio.to_thread(proc.wait, 3)
                 except subprocess.TimeoutExpired:
                     proc.kill()
         
