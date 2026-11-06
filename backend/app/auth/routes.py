@@ -14,6 +14,8 @@ from datetime import datetime, timedelta, timezone
 import uuid
 
 RESEND_COOLDOWN_SECONDS = 120
+
+ # Shown word for word on the frontend's verify page
 LINK_EXPIRED = "This link has expired. Please request a new one."
 LINK_INVALID = "This link is invalid or incomplete."
 
@@ -153,10 +155,9 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     try:
         email = verify_activation_token(token)
     except ExpiredSignatureError:
-        raise HTPPException(status_code=410, detail=LINK_EXPIRED)
+        raise HTTPException(status_code=410, detail=LINK_EXPIRED)
     except InvalidTokenError:
         raise HTTPException(status_code=400, detail=LINK_INVALID)
-    
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
