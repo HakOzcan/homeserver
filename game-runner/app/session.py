@@ -100,11 +100,11 @@ class GameSession:
         ## Give Xvfb a moment to initialize
         await asyncio.sleep(0.5)
 
-        ## Check if Xvfb crashed during startup
-        if self.xvfb_process.poll() is not None:
-            stderr = self.xvfb_process.stderr.read().decode()
-            logger.error(f"[{self.session_id}] Xvfb failed to start: {stderr}")
-            raise RuntimeError(f"Xvfb failed: {stderr}")
+        ## Check if Xvfb crashed during startup (its own error is in the log)
+        code = self.xvfb_process.poll()
+        if code is not None:
+            logger.error(f"[{self.session_id}] Xvfb exited with code {code}")
+            raise RuntimeError(f"Xvfb failed (exit code {code})")
         logger.info(f"[{self.session_id}] Xvfb started (pid={self.xvfb_process.pid})")
 
         ## --- Step 2: Start frame capture (of the empty display for now) ---
