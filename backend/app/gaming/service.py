@@ -160,7 +160,7 @@ async def get_session(session_id: str) -> dict | None:
     back as None - like dict.get().
     """
     async with httpx.AsyncClient() as client:
-        resp = await.client.get(f"{GAME_RUNNER_URL}/sessions/{session_id}")
+        resp = await client.get(f"{GAME_RUNNER_URL}/sessions/{session_id}")
         if resp.status_code == 404:
             return None
         resp.raise_for_status()
