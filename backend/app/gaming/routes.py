@@ -17,6 +17,22 @@ from app.gaming.schemas import SessionCreate, WebRTCOffer
 ## @brief Router for all gaming proxy endpoints, mounted at /gaming
 router = APIRouter(prefix="/gaming", tags=["gaming"])
 
+async def _require_owner(session_id: str, user) -> None:
+    """
+    @brief Stop the request unless the caller owns the session.
+    @param session_id UUID of the session the request acts on.
+    @param user The authenticated user (from require_active_user).
+    @throws HTTPException 404 if the session is mission OR someone else's -
+            the same answer, so a stranger can't tell the two apart.
+            503 if game-runner can't be reached.
+    """
+    try:
+        session = await service.get_session(session_id)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Game runner unavailable")
+    if session is None or session["user_id"] != user.id:
+        raise HTTPException(status_code=404, detail="Session not found")
+
 @router.get("/catalog")
 async def get_catalog(user=Depends(require_active_user)):
     """
@@ -64,7 +80,9 @@ async def stop_session(session_id: str, user=Depends(require_active_user)):
     @brief Stop a running game session.
     @param session_id UUID of the session to stop.
     @return Confirmation from game-runner.
+    @throws HTTPException 404 if the session is missing or not the caller's.
     """
+    await _require_owner(session_id, user)
     try:
         return await service.stop_session(session_id)
     except httpx.HTTPStatusError as e:
@@ -73,7 +91,7 @@ async def stop_session(session_id: str, user=Depends(require_active_user)):
         raise HTTPException(status_code=503, detail="Game runner unavailable")
 
 @router.get("/sessions")
-async def list_sessions(user=Depends(require_active_user)):
+async def list_sessions(user=Depends(require_admin)):
     """
     @brief List all active sessions (admin only).
     @return List of session metadata from game-runner.
@@ -105,11 +123,13 @@ async def webrtc_offer(session_id: str, offer: WebRTCOffer, user=Depends(require
     @param user Injected by auth - a regular Authorization header works here,
                 unlike the old WebSocket proxy which needed ?token= in the URL.
     @return Game-runner's SDP answer for the browser's setRemoteDescription().
+    @throws HTTPException 404 if the session is missing or not the caller's.
 
     This is the backend's only involvement in streaming: after this single
     offer/answer exchange, video and input flow directly between the
     browser and game-runner over the negotiated WebRTC connection.
     """
+    await _require_owner(session_id, user)
     try:
         return await service.send_webrtc_offer(session_id, offer.model_dump())
     except httpx.HTTPStatusError as e:
