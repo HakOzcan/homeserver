@@ -56,8 +56,12 @@ class FrameCapture:
         - _read_frames: reads fixed-size raw frames from stdout
         - _log_stderr: logs FFmpeg diagnostic output
         """
+        ## -nostats: FFmpeg's progress lines end in "\r", never "\n", so
+        ## _log_stderr's readline() would hit its 64 KB limit a few minutes 
+        ## in, die, and leave stderr undrained.
         cmd = [
             "ffmpeg",
+            "-nostats",
             "-f", "x11grab",                                ## Input format: X11 screen capture
             "-framerate", str(self.fps),                    ## Capture frame rate
             "-video_size", f"{self.width}x{self.height}",   ## Resolution to grab
