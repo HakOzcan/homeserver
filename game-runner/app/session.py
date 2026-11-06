@@ -88,14 +88,14 @@ class GameSession:
 
         ## --- Step 1: Start Xvfb (virtual framebuffer) ---
         logger.info(f"[{self.session_id}] Starting Xvfb on display {display} ({self.width}x{self.height})")
+        ## No stdout/stderr pipes: the output goes straight to the contaioner log. A pipe nobody reads fills up at 64 KB,
+        ## and the process then freezes on its next write.
         self.xvfb_process = subprocess.Popen(
             [
                 "Xvfb", display,
                 "-screen", "0", f"{self.width}x{self.height}x24", ## 24-bit color depth
                 "-nolisten", "tcp", ## Security: no remote X connections
             ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
         )
         ## Give Xvfb a moment to initialize
         await asyncio.sleep(0.5)
