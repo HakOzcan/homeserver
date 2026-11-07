@@ -38,10 +38,11 @@ logger = logging.getLogger(__name__)
 ##          fire for it - this deadline is the only thing that reclaims it.
 CONNECT_DEADLINE = 60
 
-## @brief Strong references to pending deadline tasks.
+## @brief Strong references to each session's background tasks (the connect deadline
+##        and the game watcher)
 ## @details asyncio keeps only weak references to tasks, so a task nobody
 ##          holds can be garbage-collected before it finishes.
-_deadline_tasks: set[asyncio.Task] = set()
+_session_tasks: set[asyncio.Task] = set()
 
 async def _expire_if_never_connected(session_id: str):
     """
@@ -56,9 +57,33 @@ async def _expire_if_never_connected(session_id: str):
     session = session_manager.get_session(session_id)
     if session is None or session.game_process is not None:
         return  ## already stopped, or a browser connected - nothing to do
-    logger.info(f"[{session_id}] No browser connected within {CONNECT_DEADLINE}s -reclaiming session")
+    logger.info(f"[{session_id}] No browser connected within {CONNECT_DEADLINE}s - reclaiming session")
     await close_peer(session_id)
     await session_manager.stop_session(session_id)
+
+## @brief Seconds between checks that a session's game is still running.
+GAME_CHECK_INTERVAL = 1
+
+async def _end_when_game_exits(session_id: str):
+    """
+    @brief Stop a session whose game process exited on its own.
+    @param session_id UUID of the session to watch.
+    
+    Our games exit only when we stop them, so an exit we didn't ask for 
+    means a crash (or a future game's own Quit button). Without this, Xvfb
+    and FFmpeg would keep streaming an empty screen and hold the slot until
+    the browser left. Tears it down exactly like DELETE /sessions/{id} does.
+    """
+    while True:
+        await asyncio.sleep(GAME_CHECK_INTERVAL)
+        session = session_manager.get_session(session_id)
+        if session is None or session.status != "running":
+            return ## stopped (or stopping) some other way - nothing to do
+        if not session.is_alive():
+            logger.info(f"[{session_id}] Game exited - ending the session")
+            await close_peer(session_id)
+            await session_manager.stop_session(session_id)
+            return
 
 @app.get("/health")
 async def health():
@@ -120,10 +145,12 @@ async def create_sessions(data: dict):
     except SessionLimitError as e:
         raise HTTPException(status_code=503, detail=str(e))
     
-    ## Start the clock now - the browser may vanish before it ever connects
-    task = asyncio.create_task(_expire_if_never_connected(session.session_id))
-    _deadline_tasks.add(task)
-    task.add_done_callback(_deadline_tasks.discard)
+    ## Start the clock now - the browser may vanish before it ever connects,
+    ## and watch for the game exiting on its own once it runs.
+    for job in (_expire_if_never_connected, _end_when_game_exits):
+        task = asyncio.create_task(job(session.session_id))
+        _session_tasks.add(task)
+        task.add_done_callback(_session_tasks.discard)        
     
     return {"session_id": session.session_id, "status": session.status}
 
