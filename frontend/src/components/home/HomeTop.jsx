@@ -13,13 +13,13 @@ export default function HomeTop() {
 
             <div className="home-top__grid">
                 <div>
-                    <hl className="home-top__name">HakServer</hl>
+                    <h1 className="home-top__name">HakServer</h1>
                     <p className="home-top__tagline">
                         A self-hosted streaming and cloud-gaming platform,
                         built and run by Hakan Ozcan.
                     </p>
                     <p className="home-top__lede">
-                        Games run on Mac Mini in my home and stream to a 
+                        Games run on a Mac Mini in my home and stream to a 
                         browser tab over WebRTC, with nothing to install.
                     </p>
                     <a className="btn home-top__code" href={REPO_URL}>
