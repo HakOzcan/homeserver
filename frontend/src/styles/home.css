@@ -7,6 +7,12 @@
 }
 
 .home {
+  --paper: #f4f6f8;
+  --ink: #0b0f14;
+  --slate: #566270;
+  --link: #2d5bd8;
+  --amber: #d98a00;
+
   font-family: "Atkinson Next", system-ui, sans-serif;
   font-size: 18px;
   line-height: 1.55;
@@ -108,5 +114,72 @@
     margin-top: 40px;
     grid-template-columns: minmax(0, 1fr);
     gap: 40px;
+  }
+}
+
+/* Sections 2-8: the paper */
+
+.home-paper {
+  padding: 0 24px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.home-section {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 88px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.home-section + .home-section {
+  border-top: 1px solid rgba(11, 15, 20, 0.14);
+}
+
+.home-section__title {
+  position: sticky;
+  top: 32px;
+  margin: 0;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.home-section__body p {
+  margin: 0;
+}
+
+.home-section__body h3 {
+  margin: 32px 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.home-section__body .home-section__lead {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.home-section__body .home-section__small {
+  margin-top: 40px;
+  font-size: 16px;
+  color: var(--slate);
+}
+
+@media (max-width: 860px) {
+  .home-section {
+    padding: 56px 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .home-section__title {
+    position: static;
+    font-size: 32px;
   }
 }
