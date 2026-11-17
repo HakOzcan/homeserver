@@ -213,3 +213,35 @@
 .home-flow dd {
   margin: 0;
 }
+
+/* Section 3: the diagram */
+
+.home-diagram {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  font-size: 15px;
+}
+
+.home-diagram text {
+  fill: var(--slate);
+  text-anchor: middle;
+}
+
+.home-diagram line,
+.home-diagram path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.home-diagram__names text {
+  fill: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.home-diagram__lifelines line {
+  stroke: var(--slate);
+  stroke-width: 1;
+}
