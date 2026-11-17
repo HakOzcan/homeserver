@@ -245,3 +245,31 @@
   stroke: var(--slate);
   stroke-width: 1;
 }
+
+/* Section 4: the decisions and what they cost */
+
+.home-decisions {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.home-decisions li::marker {
+  font-weight: 700;
+}
+
+.home-decisions li + li {
+  margin-top: 48px;
+}
+
+.home-decisions h3 {
+  margin-top: 0;
+}
+
+.home-decisions p + p {
+  margin-top: 16px;
+}
+
+.home-cost {
+  padding-left: 16px;
+  border-left: 3px solid var(--amber);
+}
