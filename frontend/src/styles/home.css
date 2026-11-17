@@ -246,30 +246,47 @@
   stroke-width: 1;
 }
 
-/* Section 4: the decisions and what they cost */
+/* Section 4-5: numbered lists, and the cost lines */
 
-.home-decisions {
+.home-list {
   margin: 0;
   padding-left: 1.3em;
 }
 
-.home-decisions li::marker {
+.home-list li::marker {
   font-weight: 700;
 }
 
-.home-decisions li + li {
+.home-list li + li {
   margin-top: 48px;
 }
 
-.home-decisions h3 {
+.home-list h3 {
   margin-top: 0;
 }
 
-.home-decisions p + p {
+.home-list p + p {
   margin-top: 16px;
 }
 
 .home-cost {
   padding-left: 16px;
   border-left: 3px solid var(--amber);
+}
+
+/* Section 5: what went wrong, and the lessons */
+
+.home-section__body > * + .home-list {
+  margin-top: 32px;
+}
+
+.home-list .home-lesson {
+  margin-top: 24px;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.home-lesson strong {
+  color: var(--slate);
 }

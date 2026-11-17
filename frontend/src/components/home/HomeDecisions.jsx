@@ -8,7 +8,7 @@ export default function HomeDecisions() {
       </h2>
 
       <div className="home-section__body">
-        <ol className="home-decisions">
+        <ol className="home-list">
           <li>
             <h3>WebRTC instead of a WebSocket</h3>
             <p>
