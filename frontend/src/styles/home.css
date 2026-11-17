@@ -129,7 +129,7 @@
   color: var(--link);
 }
 
-.home-paper a: :focus-visible {
+.home-paper a:focus-visible {
   outline-color: var(--link);
 }
 
