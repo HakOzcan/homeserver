@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-const REPO_URL = "https://github.com/HakOzcan/homeserver";
+import { REPO_URL } from "./links.jsx";
 
 export default function HomeTop() {
     return (
@@ -35,7 +34,7 @@ export default function HomeTop() {
                     </p>
                 </div>
 
-                <div className="home-top__tour">
+                <div className="home-top__tour" id="tour">
                     The tour video will be here.
                 </div>
             </div>

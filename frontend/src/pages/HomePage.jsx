@@ -5,6 +5,7 @@ import HomeHowItWorks from "../components/home/HomeHowItWorks.jsx";
 import HomeDecisions from "../components/home/HomeDecisions.jsx";
 import HomeWhatWentWrong from "../components/home/HomeWhatWentWrong.jsx";
 import HomeHowIShip from "../components/home/HomeHowIShip.jsx";
+import HomeNoDemo from "../components/home/HomeNoDemo.jsx";
 import "../styles/home.css";
 
 export default function HomePage() {
@@ -17,6 +18,7 @@ export default function HomePage() {
         <HomeDecisions />
         <HomeWhatWentWrong />
         <HomeHowIShip />
+        <HomeNoDemo />
       </main>
     </div>
   );
