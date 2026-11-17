@@ -10,7 +10,7 @@ export default function HomeHowItWorks() {
       </h2>
 
       <div className="home-section__body">
-        <svg className="home-diagrm" height="190" aria-hidden="true">
+        <svg className="home-diagram" height="190" aria-hidden="true">
             <defs>
                 <marker
                   id="home-arrow"
@@ -47,7 +47,7 @@ export default function HomeHowItWorks() {
             <text x="50%" y="168">input</text>
             <line x1="16.7%" y1="178" x2="83.3%" y2="178" markerEnd={ARROW} />
         </svg>
-        
+
         <p className="home-section__lead">
           What happens when you press Play:
         </p>
