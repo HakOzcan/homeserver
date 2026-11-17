@@ -153,6 +153,10 @@
   margin: 0;
 }
 
+.home-section__body p + p {
+  margin-top: 16px;
+}
+
 .home-section__body h3 {
   margin: 32px 0 4px;
   font-size: 18px;
@@ -265,10 +269,6 @@
   margin-top: 0;
 }
 
-.home-list p + p {
-  margin-top: 16px;
-}
-
 .home-cost {
   padding-left: 16px;
   border-left: 3px solid var(--amber);
@@ -289,4 +289,14 @@
 
 .home-lesson strong {
   color: var(--slate);
+}
+
+/* Section 6: the shipping steps */
+
+.home-section__body > * + .home-steps--compact {
+  margin-top: 24px;
+}
+
+.home-steps--compact li + li {
+  margin-top: 8px;
 }
