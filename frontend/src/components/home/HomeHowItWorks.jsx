@@ -1,5 +1,7 @@
 import React from "react";
 
+const ARROW = "url(#home-arrow)";
+
 export default function HomeHowItWorks() {
   return (
     <section className="home-section">
@@ -8,6 +10,44 @@ export default function HomeHowItWorks() {
       </h2>
 
       <div className="home-section__body">
+        <svg className="home-diagrm" height="190" aria-hidden="true">
+            <defs>
+                <marker
+                  id="home-arrow"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="5"
+                  markerHeight="5"
+                  orient="auto"
+                  >
+                    <path d="M1 1 9 5 1 9" />
+                  </marker>
+            </defs>
+            
+            <g className="home-diagram__names">
+                <text x="16.7%" y="16">Browser</text>
+                <text x="50%" y="16">Backend</text>
+                <text x="83.3%" y="16">Game server</text>
+            </g>
+
+            <g className="home-diagram__lifelines">
+                <line x1="16.7%" y1="30" x2="16.7%" y2="188" />
+                <line x1="50%" y1="30" x2="50%" y2="86" />
+                <line x1="83.3%" y1="30" x2="83.3%" y2="188" />
+            </g>
+
+            <text x="33.3%" y="58">1, 2, 3</text>
+            <line x1="16.7%" y1="68" x2="50%" y2="68" markerEnd={ARROW} />
+            <text x="66.7%" y="58">1, 3</text>
+            <line x1="50%" y1="68" x2="83.3%" y2="68" markerEnd={ARROW} />
+
+            <text x="50%" y="124">video</text>
+            <line x1="83.3%" y1="134" x2="16.7%" y2="134" markerEnd={ARROW} />
+            <text x="50%" y="168">input</text>
+            <line x1="16.7%" y1="178" x2="83.3%" y2="178" markerEnd={ARROW} />
+        </svg>
+        
         <p className="home-section__lead">
           What happens when you press Play:
         </p>
