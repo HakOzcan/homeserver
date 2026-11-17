@@ -125,6 +125,14 @@
   color: var(--ink);
 }
 
+.home-paper a {
+  color: var(--link);
+}
+
+.home-paper a: :focus-visible {
+  outline-color: var(--link);
+}
+
 .home-section {
   max-width: 1160px;
   margin: 0 auto;
@@ -298,5 +306,20 @@
 }
 
 .home-steps--compact li + li {
+  margin-top: 8px;
+}
+
+/* Section 7: the bullet list */
+
+.home-bullets {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.home-section__body > * + .home-bullets {
+  margin-top: 24px;
+}
+
+.home-bullets li + li {
   margin-top: 8px;
 }
