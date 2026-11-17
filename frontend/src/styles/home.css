@@ -183,3 +183,33 @@
     font-size: 32px;
   }
 }
+
+/* Section 3: steps and the two flow lines */
+
+.home-section__body > * + .home-section__lead {
+  margin-top: 48px;
+}
+
+.home-steps {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.home-steps li::marker {
+  font-weight: 700;
+}
+
+.home-flow {
+  margin: 16px 0 32px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 16px;
+}
+
+.home-flow dt {
+  font-weight: 700;
+}
+
+.home-flow dd {
+  margin: 0;
+}
