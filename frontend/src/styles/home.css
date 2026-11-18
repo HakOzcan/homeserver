@@ -1,43 +1,388 @@
+@font-face {
+  font-family: "Atkinson Next";
+  src: url("/fonts/atkinson-next.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 .home {
-  min-height: 100vh;
+  --paper: #f4f6f8;
+  --ink: #0b0f14;
+  --slate: #566270;
+  --link: #2d5bd8;
+  --amber: #d98a00;
+
+  font-family: "Atkinson Next", system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.home button {
+  font: inherit;
+}
+
+.home a:focus-visible,
+.home button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Section 1: the top */
+
+.home-top {
+  padding: 20px 24px 88px;
+}
+
+.home-top__bar,
+.home-top__grid {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.home-top__bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.home-top__grid {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.home-top__name {
+  margin: 0;
+  font-size: clamp(56px, 8vw, 104px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.home-top__tagline {
+  margin: 24px 0 0;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.home-top__lede {
+  margin: 16px 0 0;
+  color: var(--muted);
+}
+
+.home-top__code.btn {
+  margin-top: 32px;
+  padding: 14px 22px;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.home-top__code.btn:hover {
+  background: #7ba3ff;
+  border-color: #7ba3ff;
+}
+
+.home-top__note {
+  margin: 32px 0 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.home-top__note a {
+  color: var(--primary);
+}
+
+.home-top__tour {
+  aspect-ratio: 16 / 9;
   display: grid;
   place-items: center;
-  position: relative;
-
-  background-image: url("/bg.jpg");
-  background-size: cover;
-  background-position: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 16px;
+  color: var(--muted);
 }
 
-.home__overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
+@media (max-width: 860px) {
+  .home-top {
+    padding-bottom: 56px;
+  }
+
+  .home-top__grid {
+    margin-top: 40px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
 }
 
-.home__card {
-  position: relative;
-  width: min(560px, 92vw);
-  padding: 28px;
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(10px);
-  text-align: center;
+/* Sections 2-8: the paper */
+
+.home-paper {
+  padding: 0 24px;
+  background: var(--paper);
+  color: var(--ink);
 }
 
-.home__title {
+.home-paper a {
+  color: var(--link);
+}
+
+.home-paper a:focus-visible,
+.home-paper button:focus-visible {
+  outline-color: var(--link);
+}
+
+.home-section {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 88px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.home-section + .home-section {
+  border-top: 1px solid rgba(11, 15, 20, 0.14);
+}
+
+.home-section__title {
+  position: sticky;
+  top: 32px;
   margin: 0;
-  font-size: 2.2rem;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-.home__subtitle {
-  margin: 10px 0 18px 0;
-  color: rgba(255,255,255,0.75);
+.home-section__body p {
+  margin: 0;
 }
 
-.home__actions {
+.home-section__body p + p {
+  margin-top: 16px;
+}
+
+.home-section__body h3 {
+  margin: 32px 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.home-section__body .home-section__lead {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.home-section__body .home-section__small {
+  margin-top: 40px;
+  font-size: 16px;
+  color: var(--slate);
+}
+
+@media (max-width: 860px) {
+  .home-section {
+    padding: 56px 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .home-section__title {
+    position: static;
+    font-size: 32px;
+  }
+}
+
+/* Section 3: steps and the two flow lines */
+
+.home-section__body > * + .home-section__lead {
+  margin-top: 48px;
+}
+
+.home-steps {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.home-steps li::marker {
+  font-weight: 700;
+}
+
+.home-flow {
+  margin: 16px 0 32px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 16px;
+}
+
+.home-flow dt {
+  font-weight: 700;
+}
+
+.home-flow dd {
+  margin: 0;
+}
+
+/* Section 3: the diagram */
+
+.home-diagram {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  font-size: 15px;
+}
+
+.home-diagram text {
+  fill: var(--slate);
+  text-anchor: middle;
+}
+
+.home-diagram line,
+.home-diagram path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.home-diagram__names text {
+  fill: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.home-diagram__lifelines line {
+  stroke: var(--slate);
+  stroke-width: 1;
+}
+
+/* Section 4-5: numbered lists, and the cost lines */
+
+.home-list {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.home-list li::marker {
+  font-weight: 700;
+}
+
+.home-list li + li {
+  margin-top: 48px;
+}
+
+.home-list h3 {
+  margin-top: 0;
+}
+
+.home-cost {
+  padding-left: 16px;
+  border-left: 3px solid var(--amber);
+}
+
+/* Section 5: what went wrong, and the lessons */
+
+.home-section__body > * + .home-list {
+  margin-top: 32px;
+}
+
+.home-list .home-lesson {
+  margin-top: 24px;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.home-lesson strong {
+  color: var(--slate);
+}
+
+/* Section 6: the shipping steps */
+
+.home-section__body > * + .home-steps--compact {
+  margin-top: 24px;
+}
+
+.home-steps--compact li + li {
+  margin-top: 8px;
+}
+
+/* Section 7: the bullet list */
+
+.home-bullets {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.home-section__body > * + .home-bullets {
+  margin-top: 24px;
+}
+
+.home-bullets li + li {
+  margin-top: 8px;
+}
+
+/* Section 7: the live-demo button */
+
+.home-demo-button.btn {
+  margin-top: 32px;
+  padding: 14px 22px;
+  background: var(--link);
+  border-color: var(--link);
+  color: var(--paper);
+  font-weight: 700;
+}
+
+.home-demo-button.btn:hover {
+  background: #224ab9;
+  border-color: #224ab9;
+}
+
+.home-section__body .home-demo-email {
+  margin-top: 12px;
+}
+
+/* Section 9: the bottom */
+
+.home-bottom {
+  padding: 0 24px;
+}
+
+.home-bottom .home-section__small {
+  color: var(--muted);
+}
+
+.home-bottom__buttons {
+  margin-top: 32px;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  justify-content: center;
+}
+
+.home-bottom__buttons .btn {
+  padding: 14px 22px;
+  font-weight: 700;
+}
+
+.home-bottom__email.btn {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--bg);
+}
+
+.home-bottom__email.btn:hover {
+  background: #7ba3ff;
+  border-color: #7ba3ff;
+}
+
+.home-section__body .home-bottom__address {
+  margin-top: 12px;
 }

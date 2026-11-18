@@ -1,24 +1,29 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import HomeTop from "../components/home/HomeTop.jsx";
+import HomeWhatItIs from "../components/home/HomeWhatItIs.jsx";
+import HomeHowItWorks from "../components/home/HomeHowItWorks.jsx";
+import HomeDecisions from "../components/home/HomeDecisions.jsx";
+import HomeWhatWentWrong from "../components/home/HomeWhatWentWrong.jsx";
+import HomeHowIShip from "../components/home/HomeHowIShip.jsx";
+import HomeNoDemo from "../components/home/HomeNoDemo.jsx";
+import HomeLimits from "../components/home/HomeLimits.jsx";
+import HomeBottom from "../components/home/HomeBottom.jsx";
 import "../styles/home.css";
 
 export default function HomePage() {
   return (
     <div className="home">
-      <div className="home__overlay" />
-      <div className="home__card">
-        <h1 className="home__title">HakServer</h1>
-        <p className="home__subtitle">Your personal cloud streaming and storage platform.</p>
-
-        <div className="home__actions">
-          <Link className="btn btn--primary" to="/login">
-            Login
-          </Link>
-          <Link className="btn btn--ghost" to="/register">
-            Register
-          </Link>
-        </div>
-      </div>
+      <HomeTop />
+      <main className="home-paper">
+        <HomeWhatItIs />
+        <HomeHowItWorks />
+        <HomeDecisions />
+        <HomeWhatWentWrong />
+        <HomeHowIShip />
+        <HomeNoDemo />
+        <HomeLimits />
+      </main>
+      <HomeBottom />
     </div>
   );
 }
