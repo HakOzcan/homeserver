@@ -2,7 +2,7 @@ import React from "react";
 
 export default function HomeDecisions() {
   return (
-    <section className="home-section">
+    <section className="home-section" id="decisions">
       <h2 className="home-section__title">
         Four decisions, and what each one cost
       </h2>
