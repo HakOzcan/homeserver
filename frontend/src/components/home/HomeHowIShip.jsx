@@ -45,7 +45,7 @@ export default function HomeHowIShip() {
           frontend libraries, axios and react-router among them.
         </p>
         <p>
-          At the last check (4&nbsp;November 2026), nothing that
+          At the last check (18&nbsp;November 2026), nothing that
           runs in production had a known problem. 22 remained,
           all in build tools (Vite and its helpers), which run
           only while the site is being built. Upgrading Vite is
