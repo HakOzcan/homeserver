@@ -64,3 +64,16 @@
   z-index: 20;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
 }
+
+/* Narrow screens: no room on the right, so the box sits above the field */
+@media (max-width: 960px) {
+  .passwordPopover {
+    top: auto;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    transform: none;
+    min-width: 0;
+    background: rgb(10, 14, 20);
+  }
+}
