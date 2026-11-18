@@ -1,7 +1,14 @@
-import React from "react";
-import { REPO_URL } from "./links.jsx";
+import React, { useState } from "react";
+import { REPO_URL, emailAddress } from "./links.jsx";
 
 export default function HomeNoDemo() {
+  const [email, setEmail] = useState("");
+
+  function askForDemo() {
+    const address = emailAddress();
+    setEmail(address);
+    window.location.href = "mailto:" + address;
+  }
   return (
     <section className="home-section" id="no-demo">
       <h2 className="home-section__title">Why there's no demo login</h2>
@@ -32,6 +39,15 @@ export default function HomeNoDemo() {
             it on a call.
           </li>
         </ul>
+
+        <button
+        type="button"
+        className="btn home-demo-button"
+        onClick={askForDemo}
+        >
+          Ask for a live demo
+        </button>
+        {email && <p className="home-demo-email">{email}</p>}
       </div>
     </section>
   );
