@@ -7,6 +7,7 @@ import HomeWhatWentWrong from "../components/home/HomeWhatWentWrong.jsx";
 import HomeHowIShip from "../components/home/HomeHowIShip.jsx";
 import HomeNoDemo from "../components/home/HomeNoDemo.jsx";
 import HomeLimits from "../components/home/HomeLimits.jsx";
+import HomeBottom from "../components/home/HomeBottom.jsx";
 import "../styles/home.css";
 
 export default function HomePage() {
@@ -21,6 +22,7 @@ export default function HomePage() {
         <HomeHowIShip />
         <HomeNoDemo />
         <HomeLimits />
+        <HomeBottom />
       </main>
     </div>
   );

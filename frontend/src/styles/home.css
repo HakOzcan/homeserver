@@ -349,3 +349,40 @@
 .home-section__body .home-demo-email {
   margin-top: 12px;
 }
+
+/* Section 9: the bottom */
+
+.home-bottom {
+  padding: 0 24px;
+}
+
+.home-bottom .home-section__small {
+  color: var(--muted);
+}
+
+.home-bottom__buttons {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.home-bottom__buttons .btn {
+  padding: 14px 22px;
+  font-weight: 700;
+}
+
+.home-bottom__email.btn {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--bg);
+}
+
+.home-bottom__email.btn:hover {
+  background: #7ba3ff;
+  border-color: #7ba3ff;
+}
+
+.home-section__body .home-bottom__address {
+  margin-top: 12px;
+}
