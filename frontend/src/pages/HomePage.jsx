@@ -22,8 +22,8 @@ export default function HomePage() {
         <HomeHowIShip />
         <HomeNoDemo />
         <HomeLimits />
-        <HomeBottom />
       </main>
+      <HomeBottom />
     </div>
   );
 }
