@@ -15,11 +15,11 @@ they cost, and what went wrong along the way.
 | Service | Tech | Role |
 |---|---|---|
 | `frontend` | React + Vite, served by nginx | SPA for all features |
-| `backend` | FastAPI + PostgreSQL | Auth (JWT + server-side sessions), media library + HS APIs, gaming proxy & WebRTC signaling |
+| `backend` | FastAPI + PostgreSQL | Auth (JWT + server-side sessions), media library + HLS APIs, gaming proxy & WebRTC signaling |
 | `game-runner` | FastAPI + Xvfb + FFmpeg + aiortc | Runs game sessions and streams them over WebRTC |
 | `coturn` | coturn | TURN relay so remote (non-LAN) players can connect |
 | `db` | PostgreSQL 16 | Users, sessions, app data |
-| `nginx-proxy` + `letsencrypt` | jwildir/nginx-proxy + nginxproxy/acme-companion | Reverse proxy with automatic Let's Encrypt certificates |
+| `nginx-proxy` + `letsencrypt` | jwildir + nginxproxy/acme-companion | Reverse proxy with automatic Let's Encrypt certificates |
 | `cloudflare-ddns` | oznu/cloudflare-ddns | Keeps the domain pointed at the home connection's dynamic IP |
 
 ## Android TV client
@@ -33,7 +33,7 @@ FastAPI backend as the web SPA (`api.hakserver.cc`).
 | Playback | Media3 / ExoPlayer via `HlsMediaSource`, with every manifest, segment and subtitle fetched through the authenticated OkHttp client |
 | Quality selector | Relabels media3's raw `1920x1080, 2.5 Mb` renditions as `1080p HEVC` / `1080p H.264`, disambiguating same-height tracks from the multi-codec HLS ladder |
 | Architecture | MVVM — five ViewModels over `AuthRepository` / `MediaRepository`, manual DI through `AppContainer` |
-| Auth | A heartbeat (`TokenRefresher`) renews the token before it expires; on a 401 an OkHttp 'Authenticator' retries with a newer token or logs out |
+| Auth | A heartbeat (`TokenRefresher`) renews the token before it expires; on a 401, an OkHttp `Authenticator` retries with a newer token or logs out |
 
 minSdk 28. Developed and tested against real Fire TV hardware.
 
@@ -146,6 +146,7 @@ of a specific media session, so external 49165 has to land on internal 49165.
   before the answer (non-trickle). Trickle ICE would cut this down.
 
 ## Development workflow
+
 - Every change gets its own branch, pushed as it goes.
 - Before merging, the server runs the branch: `git checkout <branch>`, then
   `docker compose up -d --build --no-deps <service>`, then the change is
