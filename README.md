@@ -19,7 +19,7 @@ they cost, and what went wrong along the way.
 | `game-runner` | FastAPI + Xvfb + FFmpeg + aiortc | Runs game sessions and streams them over WebRTC |
 | `coturn` | coturn | TURN relay so remote (non-LAN) players can connect |
 | `db` | PostgreSQL 16 | Users, sessions, app data |
-| `nginx-proxy` + `letsencrypt` | jwildir + nginxproxy/acme-companion | Reverse proxy with automatic Let's Encrypt certificates |
+| `nginx-proxy` + `letsencrypt` | jwilder/nginx-proxy + nginxproxy/acme-companion | Reverse proxy with automatic Let's Encrypt certificates |
 | `cloudflare-ddns` | oznu/cloudflare-ddns | Keeps the domain pointed at the home connection's dynamic IP |
 
 ## Android TV client
